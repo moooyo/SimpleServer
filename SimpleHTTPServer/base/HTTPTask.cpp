@@ -7,6 +7,8 @@
 #include <HTTP/httpContext.h>
 #include <HTTP/httpResponse.h>
 #include <errHelp.h>
+#include <map>
+#include <fcntl.h>
 #include "HTTPTask.h"
 using namespace SimpleServer;
 const static std::string SERVER_ROOT="/home/lengyu/html";
@@ -46,7 +48,7 @@ void HTTPTask::Run() {
 }
 
 void HTTPTask::todoDynamic(const net::httpContext &context,std::string &content_type) {
-    std::printf("dynamic:uri=%s\n",context.getRequest().getUri().c_str());
+
 
 }
 void HTTPTask::todoStatic(const net::httpContext &context,std::string &content_type) {
@@ -57,16 +59,18 @@ void HTTPTask::todoStatic(const net::httpContext &context,std::string &content_t
     response.setContentType(content_type);
     //to delete
     std::printf("%s\n",filename.c_str());
-    FILE *file=fopen(filename.c_str(),"r");
+    //FILE *file=fopen(filename.c_str(),"rb");
+    int filefd=open(filename.c_str(),O_RDONLY);
     char buffer[BUFFER_SIZE];
     ssize_t read_size=0;
     std::string str=std::string("");
-    while((read_size = fread(buffer, 1, BUFFER_SIZE, file)) && read_size > 0)
+    while((read_size = read(filefd,buffer,BUFFER_SIZE-1)) && read_size > 0)
     {
+        buffer[read_size]='\0';
         str.append(std::string(buffer));
     }
     //to RAII it
-    fclose(file);
+    close(filefd);
     response.setBody(str);
     response.sendResponse(this->sockfd);
 }
@@ -80,30 +84,23 @@ void HTTPTask::todoStatic(const net::httpContext &context,std::string &content_t
  */
 std::tuple<int,std::string> ParseURI(const std::string &uri)
 {
-    const static std::string content_type[]={
-            "text/html; charset=UTF-8",
-            "application/javascript; charset=utf-8",
-            "application/pdf;",
-    };
-    static std::string static_list[]={
-            "html","htm","js","pdf","css",
-    };
+    const static std::unordered_map<std::string,std::string> static_mime_type({
+        {"css",  "text/css;charset=UTF-8"},{"htm",  "text/html;charset=UTF-8"},{"html", "text/html;charset=UTF-8"},
+        {"js","application/javascript; charset=utf-8"},{"gif","image/gif"},{"jpe","image/jpeg"},{"jpeg","image/jpeg"},{"jpg","image/jpeg"},
+        {"svg","image/svg+xml"},{"tif","image/tiff"},{"tiff","image/tiff"},{"mp2","video/mpeg"},
+        {"mpeg","video/mpeg"},{"movie","video/x-sgi-movie"},{"woff","font/woff2"},{"ttf","application/octet-stream"},
+        {"woff2","font/woff2"},{"png","image/png"},
+    });
     auto pos=uri.rfind('.');
     if(pos==std::string::npos)
     {
         //dynamic
-        return std::tuple<int,std::string>(1,content_type[0]);
+        return std::tuple<int,std::string>(0,"");
     }
     std::string postfix=uri.substr(pos+1);
-    if(postfix==static_list[0]||postfix==static_list[1])
+    if(static_mime_type.count(postfix)!=0)
     {
-        return std::tuple<int,std::string>(0,content_type[0]);
-    }else if(postfix==static_list[2]||postfix==static_list[3])
-    {
-        return std::tuple<int,std::string>(0,content_type[1]);
-    }else if(postfix==static_list[3])
-    {
-        return std::tuple<int,std::string>(1,content_type[2]);
+        return std::tuple<int,std::string>(0,static_mime_type.find(postfix)->second);
     }
-    return std::tuple<int,std::string>(0,content_type[0]);
+    return std::tuple<int,std::string>(0,"");
 }

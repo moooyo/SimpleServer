@@ -20,6 +20,10 @@ using namespace SimpleServer;
         if (this->epollfd < 0) {
             tool::panic("err init epoll!");
         }
+        struct timeval tv;
+        tv.tv_usec=0;
+        tv.tv_sec=0;//3 second for timeout
+        setsockopt(this->listenfd,SOL_SOCKET,SO_SNDTIMEO,&tv,sizeof(tv));
     }
     void ListenServer::StartListenning() {
         struct ::epoll_event event_list[this->MAX_EVENTS];
@@ -55,8 +59,10 @@ using namespace SimpleServer;
         struct sockaddr_in sin;
         socklen_t len= sizeof(sin);
         memset(&sin,0,len);
-        int connfd=tool::Accept(this->listenfd,(tool::SA*)&sin,&len);
-        HTTPTask task(connfd,sin);
-        this->loop->push(task);
-        this->lock->notify();
+        int connfd;
+        while((connfd = tool::Accept(this->listenfd, (tool::SA*)&sin, &len))&&connfd>0) {
+            HTTPTask task(connfd, sin);
+            this->loop->push(task);
+            this->lock->notifyAll();
+        }
     }

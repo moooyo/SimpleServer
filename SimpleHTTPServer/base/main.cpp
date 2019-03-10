@@ -12,7 +12,7 @@ namespace SimpleServer{
     {
         WorkerThread *workerThread=(WorkerThread *)args;
         workerThread->start();
-        return 0;
+        return NULL;
     }
     int main()
     {
@@ -21,9 +21,9 @@ namespace SimpleServer{
         int listenfd=tool::OpenIpv4Listen(LISTEN_PORT);
         ListenServer server(listenfd,256,&conditionLock,&loop);
         WorkerThread workers[MAX_WORKER_SIZE];
+        pthread_t tid;
         for(int i=0;i<MAX_WORKER_SIZE;++i)
         {
-            pthread_t tid;
             WorkerThread work(i,&conditionLock,&loop);
             workers[i]=std::move(work);
             pthread_create(&tid,NULL,WorkerFunction,(void *)(&workers[i]));

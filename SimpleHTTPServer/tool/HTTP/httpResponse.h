@@ -86,7 +86,7 @@ namespace SimpleServer {
             char buffer[BUFFER_SIZE];
             memset(buffer,0,BUFFER_SIZE);
             std::string str;
-            sprintf(buffer,"HTTP/1.1 %d %s\r\n",this->statusCode,this->statusMessage.c_str());
+            sprintf(buffer,"HTTP/1.0 %d %s\r\n",this->statusCode,this->statusMessage.c_str());
             str.append(buffer);
             for (auto &header : this->headers) {
                 sprintf(buffer,"%s: %s\r\n", header.first.c_str(), header.second.c_str());

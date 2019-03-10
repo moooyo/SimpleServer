@@ -29,6 +29,10 @@ namespace SimpleServer {
             queue.pop();
             return true;
         }
+        bool isEmpty(){
+            MutexLockGuard lock(__mutex);
+            return queue.empty();
+        }
     private:
         std::queue<T> queue;
         Mutex __mutex;
