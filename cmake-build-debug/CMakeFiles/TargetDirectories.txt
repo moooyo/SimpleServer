@@ -1,3 +1,0 @@
-/home/lengyu/CLionProjects/SimpleHTTPServer/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/lengyu/CLionProjects/SimpleHTTPServer/cmake-build-debug/CMakeFiles/SimpleHTTPServer.dir
-/home/lengyu/CLionProjects/SimpleHTTPServer/cmake-build-debug/CMakeFiles/edit_cache.dir
