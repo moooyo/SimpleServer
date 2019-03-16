@@ -57,6 +57,9 @@ namespace SimpleServer {
             }
             void resetSussessHeader();
             void sendResponse(int socketfd);
+            const std::string &getResponseBody() const {
+                return this->body;
+            }
         private:
             std::unordered_map<std::string, std::string> headers;
             httpStatusCode statusCode;

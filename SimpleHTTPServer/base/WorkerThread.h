@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by lengyu on 2019/3/8.
 //
@@ -16,7 +18,8 @@ namespace SimpleServer {
     class WorkerThread {
     public:
         WorkerThread()= default;
-        explicit WorkerThread(int i,ConditionLock *lock,EventLoop<HTTPTask> *loop,std::string name="worker"):id(i),name(name),lock(lock),loop(loop){
+        explicit WorkerThread(size_t i,ConditionLock *lock,EventLoop<HTTPTask> *loop,std::string name="worker"):id(i),name(
+                std::move(name)),lock(lock),loop(loop){
         };
         void start(){
             isRunning=true;

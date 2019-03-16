@@ -83,7 +83,7 @@ namespace SimpleServer{
             {
                 this->version=v;
             }
-            const HTTP_VERSION & getVersion()
+            const HTTP_VERSION & getVersion() const
             {
                 return this->version;
             }
@@ -92,7 +92,7 @@ namespace SimpleServer{
                 std::string temp(start,end);
                 this->method=stringToMethod(temp);
             }
-            const HTTP_METHOD & getMethod()
+            const HTTP_METHOD & getMethod() const
             {
                 return this->method;
             }
@@ -108,7 +108,7 @@ namespace SimpleServer{
             {
                 this->query.assign(start,end);
             }
-            const std::string& getQuery()
+            const std::string& getQuery() const
             {
                 return this->query;
             }
@@ -135,7 +135,7 @@ namespace SimpleServer{
                 value.assign(steep,end);
                 this->headers[key]=value;
             }
-            const std::unordered_map<std::string,std::string>& getHeaders()
+            const std::unordered_map<std::string,std::string>& getHeaders() const
             {
                 return this->headers;
             }

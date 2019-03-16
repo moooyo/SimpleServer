@@ -9,6 +9,7 @@
 #include <errHelp.h>
 #include <map>
 #include <fcntl.h>
+#include <Cache.h>
 #include "HTTPTask.h"
 using namespace SimpleServer;
 const static std::string SERVER_ROOT="/home/lengyu/html";
@@ -30,6 +31,7 @@ void HTTPTask::Run() {
         }
     }
     auto ret=ParseURI(context.getRequest().getUri());
+
     std::string type=std::get<1>(ret);
     int postfix_attr=std::get<0>(ret);
     switch (postfix_attr){
@@ -53,25 +55,35 @@ void HTTPTask::todoDynamic(const net::httpContext &context,std::string &content_
 }
 void HTTPTask::todoStatic(const net::httpContext &context,std::string &content_type) {
     const static int BUFFER_SIZE=4096;
-    std::string filename=SERVER_ROOT+context.getRequest().getUri();
+    auto Cache=tool::SingletonCache::getInstance();
+    const tool::CacheKey key(context.getRequest());
+    auto CacheNode=Cache->getCache(key);
     net::httpResponse response(true);
     response.resetSussessHeader();
     response.setContentType(content_type);
-    //to delete
-    std::printf("%s\n",filename.c_str());
-    //FILE *file=fopen(filename.c_str(),"rb");
-    int filefd=open(filename.c_str(),O_RDONLY);
-    char buffer[BUFFER_SIZE];
-    ssize_t read_size=0;
-    std::string str=std::string("");
-    while((read_size = read(filefd,buffer,BUFFER_SIZE-1)) && read_size > 0)
-    {
-        buffer[read_size]='\0';
-        str.append(std::string(buffer));
+    if(CacheNode== nullptr) {
+        std::string filename = SERVER_ROOT + context.getRequest().getUri();
+        //to delete
+        std::printf("%s\n", filename.c_str());
+        int filefd = open(filename.c_str(), O_RDONLY);
+        char buffer[BUFFER_SIZE];
+        ssize_t read_size = 0;
+        std::string str = std::string("");
+        while ((read_size = read(filefd, buffer, BUFFER_SIZE - 1)) && read_size > 0) {
+            buffer[read_size] = '\0';
+            str.append(std::string(buffer));
+        }
+        //to RAII it
+        close(filefd);
+        response.setBody(str);
+        const std::string body=response.getResponseBody();
+        bool ret=Cache->insert(body.c_str(),body.length(),key);
+        std::printf("uri:%s Cache miss insert:%s size=%d \n",context.getRequest().getUri().c_str(),ret==true?"true":"false",body.length());
+    }else{
+        std::printf("uri:%s Cache hit\n",context.getRequest().getUri().c_str());
+        std::string body(CacheNode->getBuffer());
+        response.setBody(body);
     }
-    //to RAII it
-    close(filefd);
-    response.setBody(str);
     response.sendResponse(this->sockfd);
 }
 
