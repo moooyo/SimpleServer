@@ -8,7 +8,7 @@
 
 namespace SimpleServer{
     const int LISTEN_PORT=8005;
-    const int MAX_WORKER_SIZE=4;
+    const int MAX_WORKER_SIZE=7;
     void* WorkerFunction(void *args)
     {
         auto *workerThread=(WorkerThread *)args;

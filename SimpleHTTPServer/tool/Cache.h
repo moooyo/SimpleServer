@@ -8,9 +8,10 @@
 #include "Buffer.h"
 #include <string>
 #include <HTTP/httpRequest.h>
-#include <RWLock.h>
 #include <list>
 #include <memory>
+#include "Mutex.h"
+#include "MutexLockGuard.h"
 
 namespace SimpleServer {
     namespace tool {
@@ -44,6 +45,7 @@ namespace SimpleServer {
         class CacheNode {
         public:
             const static time_t expiredTime=30;//every cache will active no more than 30s
+            CacheNode()= delete;
             CacheNode(const char *buf,size_t sz):size(sz),expired(time(nullptr)+expiredTime),buffer(new char[sz+1])
             {
                 memcpy(this->buffer,buf,sz);
@@ -52,9 +54,6 @@ namespace SimpleServer {
             char *getBuffer() const {
                 return this->buffer;
             }
-            RWLock &getLock() {
-                return this->__lock;
-            }
             ~CacheNode(){
                 free(this->buffer);
             }
@@ -62,7 +61,6 @@ namespace SimpleServer {
             char *buffer;
             size_t size;
             time_t expired;
-            ::RWLock __lock;
         };
 
         class CacheManager{
@@ -73,39 +71,43 @@ namespace SimpleServer {
                    return false;
                 }
                 std::shared_ptr<CacheNode> node=std::make_shared<CacheNode>(buf,size);
-                if(CacheList.size()>MAX_CACHE_SIZE)
                 {
-                    {
-                        auto iterator=CacheList.rbegin();
-                        WriteLockGuard lock((*iterator)->getLock());
+                    MutexLockGuard listlock(this->__ListMutex);
+                    if (CacheList.size() > MAX_CACHE_SIZE) {
+                        auto iterator = CacheList.rbegin();
                         CacheList.erase(iterator.base());
                     }
+                    CacheList.push_front(node);
                 }
-                WriteLockGuard lockGuard(node->getLock());
-                CacheList.push_front(node);
+                MutexLockGuard maplock(this->__MapMutex);
                 CacheMap[key]=node;
                 return true;
             }
             bool delNode(const CacheKey &key){
+                /*
                 if(CacheMap.count(key)==0)
                 {
                     return false;
                 }
                 auto iter=CacheMap.find(key);
-                WriteLockGuard lockGuard(iter->second->getLock());
                 CacheMap.erase(iter);
+                 */
                 return true;
             }
             std::shared_ptr<CacheNode> getCache(const CacheKey &key){
-                if(CacheMap.count(key)==0)
+                MutexLockGuard lockGuard(this->__MapMutex);
+                auto iter=CacheMap.find(key);
+                if(iter==CacheMap.end())
                 {
                     return nullptr;
                 }
-                return CacheMap[key];
+                return iter->second;
             }
         private:
             std::list<std::shared_ptr<CacheNode>> CacheList;
             std::unordered_map<CacheKey,std::shared_ptr<CacheNode>,CacheKeyHash> CacheMap;
+            Mutex __ListMutex;
+            Mutex __MapMutex;
         };
 
 
@@ -113,7 +115,6 @@ namespace SimpleServer {
         void __SignletonCacheInit__();
         class SingletonCache{
         private:
-            static RWLock __lock;
             static CacheManager *Cache;
         public:
             friend void __SignletonCacheInit__();

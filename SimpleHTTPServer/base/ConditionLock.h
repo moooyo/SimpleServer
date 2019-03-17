@@ -8,30 +8,43 @@
 
 #include <zconf.h>
 #include <pthread.h>
+namespace SimpleServer {
+    class ConditionLock {
+    public:
+        explicit ConditionLock(Mutex &mutex) : __mutex(mutex) {
+            pthread_cond_init(&__condition, nullptr);
+        }
+        void wait() {
+            pthread_cond_wait(&__condition, &__mutex.getLock());
+        }
 
-class ConditionLock {
-public:
-    explicit ConditionLock (){
-        pthread_mutex_init(&__mutex,NULL);
-        pthread_cond_init(&__condition,NULL);
-    }
-    void wait(){
-        pthread_cond_wait(&__condition,&__mutex);
-    }
-    void notify(){
-        pthread_cond_signal(&__condition);
-    }
-    void notifyAll(){
-        pthread_cond_broadcast(&__condition);
-    }
-    ~ConditionLock(){
-        pthread_mutex_destroy(&__mutex);
-        pthread_cond_destroy(&__condition);
-    }
-private:
-    pthread_mutex_t __mutex;
-    pthread_cond_t __condition;
-};
+        bool waitForSeconds(int seconds) {
+            struct timespec abstime;
+            clock_gettime(CLOCK_REALTIME, &abstime);
+            const int64_t KNanoSecondsPerSecond = 1000000000;
+            int64_t nanoseconds = static_cast<int64_t >(seconds * KNanoSecondsPerSecond);
+            abstime.tv_sec += static_cast<time_t >((abstime.tv_nsec + nanoseconds) / KNanoSecondsPerSecond);
+            abstime.tv_nsec = static_cast<long >((abstime.tv_nsec + nanoseconds) % KNanoSecondsPerSecond);
+            return ETIMEDOUT == pthread_cond_timedwait(&this->__condition, &this->__mutex.getLock(), &abstime);
+        }
+
+        void notify() {
+            pthread_cond_signal(&__condition);
+        }
+
+        void notifyAll() {
+            pthread_cond_broadcast(&__condition);
+        }
+
+        ~ConditionLock() {
+            pthread_cond_destroy(&__condition);
+        }
+
+    private:
+        Mutex __mutex;
+        pthread_cond_t __condition;
+    };
+}
 
 
 #endif //SIMPLEHTTPSERVER_CONDITIONLOCK_H

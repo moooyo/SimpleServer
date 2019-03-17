@@ -22,6 +22,9 @@ namespace SimpleServer {
         {
             return true;
         }
+        pthread_mutex_t &getLock(){
+            return this->__mutex;
+        }
         void lock()
         {
             pthread_mutex_lock(&this->__mutex);
