@@ -3,7 +3,7 @@
 //
 #include <Cache.h>
 #include "nethelp.h"
-#include "Logger.h"
+#include "Logging.h"
 #include "ListenServer.h"
 #include "WorkerThread.h"
 

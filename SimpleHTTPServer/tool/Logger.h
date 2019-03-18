@@ -1,73 +1,60 @@
+//
 // Created by lengyu on 2019/3/17.
 //
 
-#ifndef SIMPLEHTTPSERVER_LOGGER_H
-#define SIMPLEHTTPSERVER_LOGGER_H
+#ifndef SIMPLEHTTPSERVER_LOGGING_H
+#define SIMPLEHTTPSERVER_LOGGING_H
 
-#include <Mutex.h>
-#include <ConditionLock.h>
-#include <memory>
-#include <MutexLockGuard.h>
-#include "Buffer.h"
-
+#include "LogStream.h"
+#include "ctype.h"
 namespace SimpleServer {
-    namespace detail {
-        void __OutputToLogFile(const char *msg);
-        class LoggerBuffer{
+    namespace Logger{
+        enum  LOG_LEVEL{
+             INFO=0,
+             WARING=1,
+             ERROR=2,
+             FATAL=3,
+             TRACE=4,
+             DEBUG=5,
+        };
+        const static char *LOG_STRING[]={
+                "INFO",
+                "WARING",
+                "ERROR",
+                "FATAL",
+                "TRACE",
+                "DEBUG"
+        };
+
+        class Logger {
         public:
-            const static size_t BUFFER_SIZE=4096;
-            explicit LoggerBuffer(){
-                this->__Buffer=new char[BUFFER_SIZE];
-            }
-            ~LoggerBuffer(){
-                delete[] this->__Buffer;
-            }
-            bool append(const char *msg,size_t size){
-                if(this->__BufferSize+size>BUFFER_SIZE)
-                {
-                    return false;
+            Logger(char *__file, char *__line,LOG_LEVEL __level,char *__func= nullptr):
+                    filename(__file),line(__line),function(__func),level(__level){}
+            Logger()= delete;
+            SimpleServer::detail::LogStream stream(){
+                char buffer[headerSize];
+                if(level>=LOG_LEVEL::TRACE) {
+                    sprintf(buffer, "[%s]%s-%s(%s):", LOG_STRING[level], filename, line, function);
+                }else{
+                    sprintf(buffer, "[%s]%s-%s:", LOG_STRING[level], filename, line);
                 }
-                memcpy(this->__Buffer+__BufferSize,msg,size);
-                __BufferSize+=size;
-                return true;
-            }
-            char *getBuffer(){
-                return this->__Buffer;
-            }
-            size_t getSize(){
-                return this->__BufferSize;
+                return SimpleServer::detail::LogStream(buffer,strlen(buffer));
             }
         private:
             /*
-             *  This Buffer not have '\0' as
-             *  the end of line. If you want
-             *  to make it as string, you should
-             *  add it.
+             *  Attention!
+             *  if header size large than
+             *  64. It will panic!
              */
-            char *__Buffer;
-            size_t __BufferSize{};
-        };
-        using BufferPtr=std::unique_ptr<LoggerBuffer>;
-        using BufferVector=std::vector<BufferPtr>;
-        class LoggerThread {
-        public:
-            const static int FLUSH_INTERVAL=5;
-            const static int EMPTY_BUFFER_SIZE=5;
-            const static int FULL_BUFFER_SIZE=5;
-            LoggerThread():isRunning(true){
-            }
-            void Start();
-            bool getStatus(){
-                return isRunning;
-            }void stop(){
-                this->isRunning=false;
-            }
-        private:
-            bool isRunning;
-            std::vector<BufferPtr>buffer;
+            const static size_t headerSize=64;
+            LOG_LEVEL level;
+            char *filename;
+            char *line;
+            char *function;
+
         };
     }
 }
 
 
-#endif //SIMPLEHTTPSERVER_LOGGER_H
+#endif //SIMPLEHTTPSERVER_LOGGING_H

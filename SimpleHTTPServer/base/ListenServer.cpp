@@ -7,7 +7,7 @@
 #include "nethelp.h"
 #include "HTTP/httpRequest.h"
 #include "epollHelp.h"
-#include "Logger.h"
+#include "Logging.h"
 #include <cstdio>
 #include <sys/epoll.h>
 #include <zconf.h>
@@ -46,7 +46,6 @@ using namespace SimpleServer;
                     continue;
                 }else if(event_list[i].data.fd==this->listenfd)
                 {
-                    Logger::append("accept!",7);
                     std::printf("accept!\n");
                     this->Accept();
                 }else{

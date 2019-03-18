@@ -2,7 +2,7 @@
 // Created by lengyu on 2019/3/17.
 //
 
-#include "Logger.h"
+#include "Logging.h"
 #include <Mutex.h>
 #include <ConditionLock.h>
 #include <memory>
@@ -13,9 +13,10 @@
 //this mutex lock is due to protect next four member
 using namespace SimpleServer;
 using namespace detail;
+using namespace Logger;
 Mutex __mutex;
 ConditionLock __condition(__mutex);
-BufferPtr __CurrentBuffer=std::make_unique<LoggerBuffer>();
+SimpleServer::detail::BufferPtr __CurrentBuffer=std::make_unique<LoggerBuffer>();
 BufferVector  __EmptyBuffer;
 BufferVector  __FulledBuffer;
 void LoggerThread::Start() {
@@ -36,7 +37,7 @@ void LoggerThread::Start() {
                     }
                 }
             }
-            int diff= static_cast<int >(__EmptyBuffer.size())- SimpleServer::detail::LoggerThread::EMPTY_BUFFER_SIZE;
+            int diff= static_cast<int >(__EmptyBuffer.size())- EMPTY_BUFFER_SIZE;
             if(diff>0)
             {
                 std::cout<<diff<<std::endl;
@@ -85,9 +86,4 @@ void __AppendToLogFile(const char *msgline, size_t len) {
             __condition.notify();
         }
     }
-}
-
-void __OutputToLogFile(const char *msg) {
-    size_t len=strlen(msg);
-    __AppendToLogFile(msg,len);
 }
