@@ -2,7 +2,8 @@
 // Created by lengyu on 2019/3/2.
 //
 #include <Cache.h>
-#include "../tool/nethelp.h"
+#include "nethelp.h"
+#include "Logger.h"
 #include "ListenServer.h"
 #include "WorkerThread.h"
 
@@ -15,14 +16,22 @@ namespace SimpleServer{
         workerThread->start();
         return nullptr;
     }
+    void* LoggerFunction(void *args)
+    {
+        Logger::LoggerThread thread;
+        thread.Start();
+        return nullptr;
+    }
     int main()
     {
         EventLoop<HTTPTask> loop;
-        ConditionLock conditionLock;
+        Mutex __lock;
+        ConditionLock conditionLock(__lock);
         int listenfd=tool::OpenIpv4Listen(LISTEN_PORT);
         ListenServer server(listenfd,256,&conditionLock,&loop);
         WorkerThread workers[MAX_WORKER_SIZE];
         pthread_t tid;
+        pthread_create(&tid, nullptr,LoggerFunction, nullptr);
         for(size_t i=0;i<MAX_WORKER_SIZE;++i)
         {
             WorkerThread work(i,&conditionLock,&loop);

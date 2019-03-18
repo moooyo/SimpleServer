@@ -1,6 +1,3 @@
-#include <memory>
-
-//
 // Created by lengyu on 2019/3/17.
 //
 
@@ -14,7 +11,8 @@
 #include "Buffer.h"
 
 namespace SimpleServer {
-    namespace Logger {
+    namespace detail {
+        void __OutputToLogFile(const char *msg);
         class LoggerBuffer{
         public:
             const static size_t BUFFER_SIZE=4096;
@@ -51,13 +49,6 @@ namespace SimpleServer {
         };
         using BufferPtr=std::unique_ptr<LoggerBuffer>;
         using BufferVector=std::vector<BufferPtr>;
-        Mutex __mutex;
-        ConditionLock __condition(__mutex);
-        BufferPtr __CurrentBuffer;
-        BufferVector  __EmptyBuffer;
-        BufferVector  __FulledBuffer;
-
-
         class LoggerThread {
         public:
             const static int FLUSH_INTERVAL=5;
@@ -75,33 +66,6 @@ namespace SimpleServer {
             bool isRunning;
             std::vector<BufferPtr>buffer;
         };
-
-
-        void append(const char *msgline, size_t len){
-            MutexLockGuard lock(__mutex);
-            if(!__CurrentBuffer->append(msgline, len))
-            {
-                __FulledBuffer.push_back(std::move(__CurrentBuffer));
-                if(__EmptyBuffer.empty())
-                {
-                    auto NewCurrentBuffer=std::make_unique<LoggerBuffer>();
-                    __CurrentBuffer.swap(NewCurrentBuffer);
-                }else{
-                    auto EmptyPtr=__EmptyBuffer.back().release();
-                    auto NewCurrentBuffer=std::make_unique<LoggerBuffer>(EmptyPtr);
-                    __EmptyBuffer.pop_back();
-                    __CurrentBuffer.swap(NewCurrentBuffer);
-                }
-                if(__FulledBuffer.size()>LoggerThread::FULL_BUFFER_SIZE)
-                {
-                    __condition.notify();
-                }
-            }else{
-                __CurrentBuffer->append(msgline,len);
-            }
-        }
-
-
     }
 }
 

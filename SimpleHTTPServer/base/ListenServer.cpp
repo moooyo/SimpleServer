@@ -3,10 +3,11 @@
 //
 
 #include "ListenServer.h"
-#include "../tool/errHelp.h"
-#include "../tool/nethelp.h"
+#include "errHelp.h"
+#include "nethelp.h"
 #include "HTTP/httpRequest.h"
-#include "../tool/epollHelp.h"
+#include "epollHelp.h"
+#include "Logger.h"
 #include <cstdio>
 #include <sys/epoll.h>
 #include <zconf.h>
@@ -45,6 +46,7 @@ using namespace SimpleServer;
                     continue;
                 }else if(event_list[i].data.fd==this->listenfd)
                 {
+                    Logger::append("accept!",7);
                     std::printf("accept!\n");
                     this->Accept();
                 }else{
@@ -63,6 +65,6 @@ using namespace SimpleServer;
         while((connfd = tool::Accept(this->listenfd, (tool::SA*)&sin, &len))&&connfd>0) {
             HTTPTask task(connfd, sin);
             this->loop->push(task);
-            this->lock->notifyAll();
+            this->lock->notify();
         }
     }

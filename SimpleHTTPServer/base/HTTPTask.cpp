@@ -9,6 +9,7 @@
 #include <errHelp.h>
 #include <map>
 #include <fcntl.h>
+#include <Logger.h>
 #include <Cache.h>
 #include "HTTPTask.h"
 using namespace SimpleServer;
@@ -46,6 +47,7 @@ void HTTPTask::Run() {
             break;
     }
     close(this->sockfd);
+    Logger::append("closed",6);
     std::printf("closed!\n");
 }
 

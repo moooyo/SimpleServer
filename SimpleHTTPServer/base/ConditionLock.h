@@ -8,6 +8,7 @@
 
 #include <zconf.h>
 #include <pthread.h>
+#include <memory>
 namespace SimpleServer {
     class ConditionLock {
     public:
@@ -18,6 +19,9 @@ namespace SimpleServer {
             pthread_cond_wait(&__condition, &__mutex.getLock());
         }
 
+        /*
+         *  return true when timeout
+         */
         bool waitForSeconds(int seconds) {
             struct timespec abstime;
             clock_gettime(CLOCK_REALTIME, &abstime);
