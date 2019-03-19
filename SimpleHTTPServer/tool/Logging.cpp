@@ -34,9 +34,11 @@ void LoggerThread::Start() {
                         __CurrentBuffer.swap(NewCurrentBuffer);
                         __FulledBuffer.push_back(std::move(NewCurrentBuffer));
                         NewCurrentBuffer.reset(nullptr);
+                        break;
                     }
                 }
             }
+            // init empty buffer vector
             int diff= static_cast<int >(__EmptyBuffer.size())- EMPTY_BUFFER_SIZE;
             if(diff>0)
             {
@@ -47,8 +49,10 @@ void LoggerThread::Start() {
                     __EmptyBuffer.push_back(std::make_unique<LoggerBuffer>());
                 }
             }
+
             this->buffer.swap(__FulledBuffer);
         }
+
         int filefd=open(filename,O_WRONLY|O_APPEND|O_CREAT,S_IWUSR|S_IRUSR);
         for(auto &i:buffer){
             write(filefd,i->getBuffer(),i->getSize());
@@ -62,7 +66,7 @@ void LoggerThread::Start() {
  * in server. User shouldn't use
  * it
  */
-void __AppendToLogFile(const char *msgline, size_t len) {
+void SimpleServer::detail::__AppendToLogFile(const char *msgline, size_t len) {
     MutexLockGuard lock(__mutex);
     if(!__CurrentBuffer->append(msgline, len))
     {

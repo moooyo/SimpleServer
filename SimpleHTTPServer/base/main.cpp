@@ -3,27 +3,41 @@
 //
 #include <Cache.h>
 #include "nethelp.h"
+#include "Logger.h"
 #include "Logging.h"
 #include "ListenServer.h"
+#include "CurrentThread.h"
 #include "WorkerThread.h"
-
+#include "syscall.h"
 namespace SimpleServer{
     const int LISTEN_PORT=8005;
     const int MAX_WORKER_SIZE=7;
     void* WorkerFunction(void *args)
     {
+        __threadName=__ThreadNameStorage[0];
+        __threadStringSize=strlen(__threadName);
+
+        LOG_INFO<<"Start Worker Thread";
         auto *workerThread=(WorkerThread *)args;
         workerThread->start();
         return nullptr;
     }
     void* LoggerFunction(void *args)
     {
+        __threadName=__ThreadNameStorage[2];
+        __threadStringSize=strlen(__threadName);
+
+        LOG_INFO<<"Start Log Thread";
         Logger::LoggerThread thread;
         thread.Start();
         return nullptr;
     }
     int main()
     {
+        __threadName=__ThreadNameStorage[1];
+        __threadStringSize=strlen(__threadName);
+
+        LOG_INFO<<"Start Server";
         EventLoop<HTTPTask> loop;
         Mutex __lock;
         ConditionLock conditionLock(__lock);

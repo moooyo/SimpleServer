@@ -6,13 +6,12 @@
 #define SIMPLEHTTPSERVER_LOGSTREAM_H
 
 #include <cstring>
-#include <iostream>
 #include "Logging.h"
 namespace SimpleServer {
     namespace detail {
     class LogStream{
         public:
-            explicit LogStream(const char *header, size_t headerSize):__bufferSize(__bufferSize){
+            explicit LogStream(const char *header, size_t headerSize):__bufferSize(headerSize){
                 memcpy(__buffer,header,headerSize);
             }
             LogStream()= delete;
@@ -30,7 +29,9 @@ namespace SimpleServer {
                 return *this;
             }
             ~LogStream(){
-                __AppendToLogFile(__buffer,__bufferSize);
+                //every log must end of '\n'
+                this->append("\n");
+                SimpleServer::detail::__AppendToLogFile(__buffer,__bufferSize);
             }
         private:
             const static size_t BUFFER_SIZE=4096;
@@ -39,7 +40,7 @@ namespace SimpleServer {
              *  This buffer don't have
              *  '\0' in the end.
              */
-            char __buffer[BUFFER_SIZE];
+            char __buffer[BUFFER_SIZE+1];
             size_t __bufferSize;
         };
     }
