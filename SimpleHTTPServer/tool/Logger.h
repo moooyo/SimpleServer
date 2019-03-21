@@ -112,13 +112,13 @@ namespace SimpleServer {
     }
 }
 #define SERVER_LOG_LEVEL SimpleServer::Logger::LOG_LEVEL::INFO
-#define LOG_INFO if(SERVER_LOG_LEVEL>=SimpleServer::Logger::LOG_LEVEL::INFO)\
+#define LOG_INFO if(SERVER_LOG_LEVEL<=SimpleServer::Logger::LOG_LEVEL::INFO)\
     SimpleServer::Logger::__Logger(__FILE__, __LINE__, SimpleServer::Logger::LOG_LEVEL::INFO).stream()
-#define LOG_WARING if(SERVER_LOG_LEVEL>=SimpleServer::Logger::LOG_LEVEL::WARING)\
+#define LOG_WARING if(SERVER_LOG_LEVEL<=SimpleServer::Logger::LOG_LEVEL::WARING)\
     SimpleServer::Logger::__Logger(__FILE__, __LINE__, SimpleServer::Logger::LOG_LEVEL::WARING).stream()
-#define LOG_ERROR if(SERVER_LOG_LEVEL>=SimpleServer::Logger::LOG_LEVEL::ERROR)\
+#define LOG_ERROR if(SERVER_LOG_LEVEL<=SimpleServer::Logger::LOG_LEVEL::ERROR)\
     SimpleServer::Logger::__Logger(__FILE__, __LINE__, SimpleServer::Logger::LOG_LEVEL::ERROR).stream()
-#define LOG_FATAL if(SERVER_LOG_LEVEL>=SimpleServer::Logger::LOG_LEVEL::FATAL)\
+#define LOG_FATAL if(SERVER_LOG_LEVEL<=SimpleServer::Logger::LOG_LEVEL::FATAL)\
     SimpleServer::Logger::__Logger(__FILE__, __LINE__, SimpleServer::Logger::LOG_LEVEL::FATAL).stream()
 #define LOG_TRACE SimpleServer::Logger::__Logger(__FILE__, __LINE__, SimpleServer::Logger::LOG_LEVEL::TRACE, __FUNCTION__).stream()
 #define LOG_DEBUG SimpleServer::Logger::__Logger(__FILE__, __LINE__, SimpleServer::Logger::LOG_LEVEL::TRACE, __FUNCTION__).stream()

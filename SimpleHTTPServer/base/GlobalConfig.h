@@ -5,9 +5,8 @@
 #ifndef SIMPLEHTTPSERVER_CONFIG_H
 #define SIMPLEHTTPSERVER_CONFIG_H
 
-#include "Logger.h"
-#include "Logging.h"
-#include "LogStream.h"
+#include <LogStream.h>
+
 namespace SimpleServer {
     namespace Config {
         void parseConfig();
@@ -22,6 +21,7 @@ namespace SimpleServer {
                 size_t cacheNodeSize;
                 size_t expired;
             public:
+                friend SimpleServer::detail::LogStream& operator<<(SimpleServer::detail::LogStream& out,CacheConfig &cacheConfig);
                 friend void SimpleServer::Config::parseConfig();
                 bool Status(){return this->status;}
                 size_t CacheSize(){return this->cacheSize;}
@@ -37,6 +37,7 @@ namespace SimpleServer {
                 size_t emptyVectorSize ;
                 std::string logFilePath ;
             public:
+                friend SimpleServer::detail::LogStream& operator<<(SimpleServer::detail::LogStream& out,LogConfig &logConfig);
                 friend void SimpleServer::Config::parseConfig();
                 bool Status(){return this->status;};
 //                Logger::LOG_LEVEL Level(){return this->level;};
@@ -52,6 +53,7 @@ namespace SimpleServer {
                 std::string root;
                 std::string index;
             public:
+                friend SimpleServer::detail::LogStream& operator<<(SimpleServer::detail::LogStream& out,ServerConfig &serverConfig);
                 friend void SimpleServer::Config::parseConfig();
                 std::string& Domain() {return this->domain;}
                 size_t ListenPort() {return this->listenPort;}
@@ -60,6 +62,7 @@ namespace SimpleServer {
             };
             class __GlobalConfig{
             public:
+                friend SimpleServer::detail::LogStream& operator<<(SimpleServer::detail::LogStream& out,__GlobalConfig &globalConfig);
                 friend void SimpleServer::Config::parseConfig();
                 CacheConfig& Cache(){ return this->__cache;}
                 LogConfig& Log() {return this->__log;}

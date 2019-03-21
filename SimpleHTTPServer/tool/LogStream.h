@@ -4,9 +4,8 @@
 
 #ifndef SIMPLEHTTPSERVER_LOGSTREAM_H
 #define SIMPLEHTTPSERVER_LOGSTREAM_H
-#include <cstring>
-#include <GlobalConfig.h>
 #include "Logging.h"
+#include <iostream>
 namespace SimpleServer {
     namespace detail {
     class LogStream{
@@ -24,8 +23,14 @@ namespace SimpleServer {
                 memcpy(__buffer+__bufferSize,msg,len);
                 this->__bufferSize+=len;
             }
-            LogStream& operator<<(const char *&msg){
+            LogStream& operator<<(const char *msg){
                 this->append(msg);
+                return *this;
+            }
+            LogStream&operator<<(const size_t &size){
+                char buffer[32];
+                sprintf(buffer,"%lu", size);
+                this->append(buffer);
                 return *this;
             }
             LogStream&operator<<(const bool &msg){
