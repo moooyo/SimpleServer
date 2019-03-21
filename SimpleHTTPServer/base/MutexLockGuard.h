@@ -6,15 +6,17 @@
 #define SIMPLEHTTPSERVER_MUTEXGUARDLOCK_H
 
 #include "Mutex.h"
+
 namespace SimpleServer {
     class MutexLockGuard {
     public:
-        explicit MutexLockGuard(Mutex &mutex): __mutex(mutex){
+        explicit MutexLockGuard(Mutex &mutex) : __mutex(mutex) {
             __mutex.lock();
         }
-        MutexLockGuard()= delete;
 
-        ~MutexLockGuard(){
+        MutexLockGuard() = delete;
+
+        ~MutexLockGuard() {
             __mutex.unlock();
         }
 

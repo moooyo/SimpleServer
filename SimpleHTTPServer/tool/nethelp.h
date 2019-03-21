@@ -5,6 +5,7 @@
 #define UNTITLED3_NETHELP_H
 
 #include <sys/socket.h>
+
 namespace SimpleServer {
     namespace tool {
         using SA=sockaddr;
@@ -21,7 +22,6 @@ namespace SimpleServer {
         int Accept(int sockfd, struct sockaddr *cliaddr, socklen_t *addrlen);
     }
 }
-
 
 
 #endif //UNTITLED3_NETHELP_H

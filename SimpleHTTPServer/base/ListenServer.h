@@ -18,12 +18,16 @@ namespace SimpleServer {
         ConditionLock *lock;
     public:
         const int MAX_EVENTS;
-        ~ListenServer(){
+
+        ~ListenServer() {
             close(this->listenfd);
             close(this->epollfd);
         }
-        ListenServer(int sockfd,int maxsize,ConditionLock *lock,EventLoop<HTTPTask> *loop);
+
+        ListenServer(int sockfd, int maxsize, ConditionLock *lock, EventLoop<HTTPTask> *loop);
+
         void StartListenning();
+
         void Accept();
     };
 }

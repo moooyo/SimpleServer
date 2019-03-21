@@ -4,7 +4,7 @@
 
 #ifndef UNTITLED3_ERRHELP_H
 #define UNTITLED3_ERRHELP_H
-namespace SimpleServer{
+namespace SimpleServer {
     namespace tool {
         void panic(const char *msg);
     }

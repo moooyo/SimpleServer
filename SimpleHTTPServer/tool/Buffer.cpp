@@ -3,6 +3,7 @@
 //
 
 #include "Buffer.h"
+
 using namespace SimpleServer;
 using namespace SimpleServer::tool;
-const char Buffer::CRLF[]="\r\n";
+const char Buffer::CRLF[] = "\r\n";

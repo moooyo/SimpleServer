@@ -55,11 +55,15 @@ namespace SimpleServer {
             void setBody(const std::string &body) {
                 this->body = body;
             }
+
             void resetSussessHeader();
+
             void sendResponse(int socketfd);
+
             const std::string &getResponseBody() const {
                 return this->body;
             }
+
         private:
             std::unordered_map<std::string, std::string> headers;
             httpStatusCode statusCode;
@@ -73,32 +77,32 @@ namespace SimpleServer {
             this->setStatusMessage("OK");
             this->setCloseConnection(true);
             this->setContentType("text/html;charset=UTF-8");
-            const int bufferSize=64;
+            const int bufferSize = 64;
             char timeStr[bufferSize];
             time_t timenow;
             struct tm timeInfo;
             time(&timenow);
-            gmtime_r(&timenow,&timeInfo);
-            strftime(timeStr,bufferSize,"%a, %d %b %Y %H:%M:%S GMT",&timeInfo);
-            this->addHeader("Date",std::string(timeStr));
-            this->addHeader("Server","SimpleServer/1.0");
+            gmtime_r(&timenow, &timeInfo);
+            strftime(timeStr, bufferSize, "%a, %d %b %Y %H:%M:%S GMT", &timeInfo);
+            this->addHeader("Date", std::string(timeStr));
+            this->addHeader("Server", "SimpleServer/1.0");
         }
 
         void httpResponse::sendResponse(int socketfd) {
-            const int BUFFER_SIZE=4096;
+            const int BUFFER_SIZE = 4096;
             char buffer[BUFFER_SIZE];
-            memset(buffer,0,BUFFER_SIZE);
+            memset(buffer, 0, BUFFER_SIZE);
             std::string str;
-            sprintf(buffer,"HTTP/1.0 %d %s\r\n",this->statusCode,this->statusMessage.c_str());
+            sprintf(buffer, "HTTP/1.0 %d %s\r\n", this->statusCode, this->statusMessage.c_str());
             str.append(buffer);
             for (auto &header : this->headers) {
-                sprintf(buffer,"%s: %s\r\n", header.first.c_str(), header.second.c_str());
+                sprintf(buffer, "%s: %s\r\n", header.first.c_str(), header.second.c_str());
                 str.append(buffer);
             }
-            sprintf(buffer,"\r\n");
+            sprintf(buffer, "\r\n");
             str.append(buffer);
-            write(socketfd,str.c_str(),str.size());
-            write(socketfd,this->body.c_str(),this->body.size());
+            write(socketfd, str.c_str(), str.size());
+            write(socketfd, this->body.c_str(), this->body.size());
         }
     }
 }

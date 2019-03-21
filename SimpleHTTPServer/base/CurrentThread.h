@@ -7,18 +7,19 @@
 
 #include <cstddef>
 
-namespace SimpleServer{
+namespace SimpleServer {
 #define gettid() syscall(SYS_gettid)
 
-    extern __thread long   __cachedTid ;
+    extern __thread long __cachedTid;
     extern __thread size_t __threadStringSize;
     extern __thread char __threadString[32];
-    extern __thread const char *__threadName ;
-    const static char *__ThreadNameStorage[]={
+    extern __thread const char *__threadName;
+    const static char *__ThreadNameStorage[] = {
             "Worker",
             "Listener",
             "Logger",
     };
+
     void __Cached();
 }
 

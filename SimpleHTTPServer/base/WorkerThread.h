@@ -17,24 +17,27 @@
 namespace SimpleServer {
     class WorkerThread {
     public:
-        WorkerThread()= default;
-        explicit WorkerThread(size_t i,ConditionLock *lock,EventLoop<HTTPTask> *loop,std::string name="worker"):id(i),name(
-                std::move(name)),lock(lock),loop(loop){
+        WorkerThread() = default;
+
+        explicit WorkerThread(size_t i, ConditionLock *lock, EventLoop <HTTPTask> *loop, std::string name = "worker")
+                : id(i), name(
+                std::move(name)), lock(lock), loop(loop) {
         };
-        void start(){
-            isRunning=true;
-            while(isRunning){
+
+        void start() {
+            isRunning = true;
+            while (isRunning) {
                 lock->wait();
                 HTTPTask task;
-                if(!loop->TryPop(task))
-                {
+                if (!loop->TryPop(task)) {
                     continue;
                 }
                 task.Run();
             }
         }
-        void stop(){
-            isRunning=false;
+
+        void stop() {
+            isRunning = false;
         }
 
     private:
@@ -42,7 +45,7 @@ namespace SimpleServer {
         std::string name;
         ConditionLock *lock;
         bool isRunning;
-        EventLoop<HTTPTask> *loop;
+        EventLoop <HTTPTask> *loop;
     };
 }
 

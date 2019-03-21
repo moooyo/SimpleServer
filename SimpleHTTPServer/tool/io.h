@@ -7,7 +7,7 @@
 
 #include <cstdio>
 
-namespace SimpleServer{
+namespace SimpleServer {
     namespace tool {
         using ssize_t=long;
         const ssize_t MAXLINE = 4096;

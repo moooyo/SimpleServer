@@ -10,10 +10,11 @@
 namespace SimpleServer {
     class Task {
     public:
-        ~Task(){
+        ~Task() {
 
         };
-        virtual void Run()=0;
+
+        virtual void Run() = 0;
     };
 }
 

@@ -6,7 +6,8 @@
 #include <cstdio>
 #include <cerrno>
 #include "errHelp.h"
-namespace SimpleServer{
+
+namespace SimpleServer {
     namespace tool {
         void panic(const char *msg) {
             std::printf("panic:errno(%d) with msg(%s)\n", errno, msg);

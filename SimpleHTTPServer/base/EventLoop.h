@@ -9,30 +9,33 @@
 #include "Mutex.h"
 #include "MutexLockGuard.h"
 #include <queue>
+
 namespace SimpleServer {
-    template <class T>
+    template<class T>
     class EventLoop {
     public:
-        EventLoop(){}
-        void push(T &task){
+        EventLoop() {}
+
+        void push(T &task) {
             MutexLockGuard lock(__mutex);
             queue.push(task);
         }
-        bool TryPop(T &destination)
-        {
+
+        bool TryPop(T &destination) {
             MutexLockGuard lock(__mutex);
-            if(queue.empty())
-            {
+            if (queue.empty()) {
                 return false;
             }
-            destination=std::move(queue.front());
+            destination = std::move(queue.front());
             queue.pop();
             return true;
         }
-        bool isEmpty(){
+
+        bool isEmpty() {
             MutexLockGuard lock(__mutex);
             return queue.empty();
         }
+
     private:
         std::queue<T> queue;
         Mutex __mutex;

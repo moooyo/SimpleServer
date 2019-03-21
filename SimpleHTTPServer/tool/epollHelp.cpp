@@ -5,8 +5,9 @@
 #include "epollHelp.h"
 #include <sys/epoll.h>
 #include "errHelp.h"
-namespace SimpleServer{
-    namespace tool{
+
+namespace SimpleServer {
+    namespace tool {
         int Epoll_ctl(int epollfd, int op, int fd, struct epoll_event *event) {
             int ret;
             if ((ret = epoll_ctl(epollfd, op, fd, event)) < 0) {

@@ -12,19 +12,20 @@
 #include <unordered_map>
 #include <ctime>
 #include "syscall.h"
+
 namespace SimpleServer {
-    namespace Logger{
-        enum class LOG_LEVEL{
-             INFO=0,
-             WARING=1,
-             ERROR=2,
-             FATAL=3,
-             TRACE=4,
-             DEBUG=5,
-             FORBIDDEN=6,
-             UNKNOWN=7,
+    namespace Logger {
+        enum class LOG_LEVEL {
+            INFO = 0,
+            WARING = 1,
+            ERROR = 2,
+            FATAL = 3,
+            TRACE = 4,
+            DEBUG = 5,
+            FORBIDDEN = 6,
+            UNKNOWN = 7,
         };
-        const static char *LOG_STRING[]={
+        const static char *LOG_STRING[] = {
                 "INFO",
                 "WARING",
                 "ERROR",
@@ -32,36 +33,40 @@ namespace SimpleServer {
                 "TRACE",
                 "DEBUG"
         };
-        inline size_t Level2Int(LOG_LEVEL level){
-            switch (level){
-                case LOG_LEVEL ::INFO:
+
+        inline size_t Level2Int(LOG_LEVEL level) {
+            switch (level) {
+                case LOG_LEVEL::INFO:
                     return 0;
-                case LOG_LEVEL ::WARING:
+                case LOG_LEVEL::WARING:
                     return 1;
-                case LOG_LEVEL ::ERROR:
+                case LOG_LEVEL::ERROR:
                     return 2;
-                case LOG_LEVEL ::FATAL:
+                case LOG_LEVEL::FATAL:
                     return 3;
-                case LOG_LEVEL ::TRACE:
+                case LOG_LEVEL::TRACE:
                     return 4;
-                case LOG_LEVEL ::DEBUG:
+                case LOG_LEVEL::DEBUG:
                     return 5;
-                case LOG_LEVEL ::FORBIDDEN:
+                case LOG_LEVEL::FORBIDDEN:
                     return 6;
                 default:
                     return 7;
             }
         }
-        inline LOG_LEVEL Str2Level(std::string& str)
-        {
-            static std::unordered_map<std::string,LOG_LEVEL>levelMap={
-                    {"INFO",LOG_LEVEL::INFO},{"WARING",LOG_LEVEL::WARING},
-                    {"ERROR",LOG_LEVEL::ERROR},{"FATAL",LOG_LEVEL ::FATAL},
-                    {"TRACE",LOG_LEVEL ::TRACE},{"DEBUG",LOG_LEVEL ::DEBUG},
-                    {"FORBIDDEN",LOG_LEVEL ::FORBIDDEN}
+
+        inline LOG_LEVEL Str2Level(std::string &str) {
+            static std::unordered_map<std::string, LOG_LEVEL> levelMap = {
+                    {"INFO",      LOG_LEVEL::INFO},
+                    {"WARING",    LOG_LEVEL::WARING},
+                    {"ERROR",     LOG_LEVEL::ERROR},
+                    {"FATAL",     LOG_LEVEL::FATAL},
+                    {"TRACE",     LOG_LEVEL::TRACE},
+                    {"DEBUG",     LOG_LEVEL::DEBUG},
+                    {"FORBIDDEN", LOG_LEVEL::FORBIDDEN}
             };
-            if(levelMap.count(str)==0){
-                return LOG_LEVEL ::UNKNOWN;
+            if (levelMap.count(str) == 0) {
+                return LOG_LEVEL::UNKNOWN;
             }
             return levelMap[str];
         }
@@ -69,44 +74,48 @@ namespace SimpleServer {
         class __Logger {
         public:
 
-            __Logger(const char *__file, const int __line,LOG_LEVEL __level,const char *__func= nullptr):
-                    filename(__file),line(__line),function(__func),level(__level){}
-            __Logger()= delete;
-            SimpleServer::detail::LogStream stream(){
+            __Logger(const char *__file, const int __line, LOG_LEVEL __level, const char *__func = nullptr) :
+                    filename(__file), line(__line), function(__func), level(__level) {}
+
+            __Logger() = delete;
+
+            SimpleServer::detail::LogStream stream() {
                 //cached tid
                 __Cached();
 
                 char buffer[headerSize];
-                const char* pos=strrchr(filename,'/');
-                const static size_t timeTempSize=64;
+                const char *pos = strrchr(filename, '/');
+                const static size_t timeTempSize = 64;
                 char timeTemp[timeTempSize];
-                struct timeval  localTime;
-                if(gettimeofday(&localTime, nullptr)==0)
-                {
+                struct timeval localTime;
+                if (gettimeofday(&localTime, nullptr) == 0) {
                     struct tm timeSotrage;
-                    localtime_r(&localTime.tv_sec,&timeSotrage);
-                    std::strftime(timeTemp,timeTempSize,"%Z %Y-%m-%d %H:%M:%S",&timeSotrage);
-                    sprintf(timeTemp,"%s.%li",timeTemp,localTime.tv_usec);
-                }else{
-                    sprintf(timeTemp,"%s.%d","Error",errno);
+                    localtime_r(&localTime.tv_sec, &timeSotrage);
+                    std::strftime(timeTemp, timeTempSize, "%Z %Y-%m-%d %H:%M:%S", &timeSotrage);
+                    sprintf(timeTemp, "%s.%li", timeTemp, localTime.tv_usec);
+                } else {
+                    sprintf(timeTemp, "%s.%d", "Error", errno);
                 }
-                if(level>=LOG_LEVEL::TRACE) {
-                    sprintf(buffer, "[%s] %s %s %s:%d(%s) ", LOG_STRING[Level2Int(level)], __threadString, timeTemp, pos+1, line, function);
-                }else{
-                    sprintf(buffer, "[%s] %s %s %s:%d ", LOG_STRING[Level2Int(level)], __threadString,timeTemp, pos+1, line);
+                if (level >= LOG_LEVEL::TRACE) {
+                    sprintf(buffer, "[%s] %s %s %s:%d(%s) ", LOG_STRING[Level2Int(level)], __threadString, timeTemp,
+                            pos + 1, line, function);
+                } else {
+                    sprintf(buffer, "[%s] %s %s %s:%d ", LOG_STRING[Level2Int(level)], __threadString, timeTemp,
+                            pos + 1, line);
                 }
-                return SimpleServer::detail::LogStream(buffer,strlen(buffer));
+                return SimpleServer::detail::LogStream(buffer, strlen(buffer));
             }
+
         private:
             /*
              *  Attention!
              *  if header size large than
              *  128. It will panic!
              */
-            const static size_t headerSize=128;
+            const static size_t headerSize = 128;
             LOG_LEVEL level;
             const char *filename;
-            const int  line;
+            const int line;
             const char *function;
         };
     }

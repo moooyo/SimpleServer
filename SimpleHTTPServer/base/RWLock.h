@@ -8,48 +8,61 @@
 #include <zconf.h>
 #include <pthread.h>
 
-class RWLock{
+class RWLock {
 public:
-    RWLock(){
-        pthread_rwlock_init(&this->rwlock,NULL);
+    RWLock() {
+        pthread_rwlock_init(&this->rwlock, NULL);
     }
-    void ReadLock(){
+
+    void ReadLock() {
         pthread_rwlock_rdlock(&this->rwlock);
     }
-    void WriteLock(){
+
+    void WriteLock() {
         pthread_rwlock_wrlock(&this->rwlock);
     }
-    void Unlock(){
+
+    void Unlock() {
         pthread_rwlock_unlock(&this->rwlock);
     }
-    ~RWLock(){
+
+    ~RWLock() {
         pthread_rwlock_destroy(&this->rwlock);
     }
+
 private:
     pthread_rwlock_t rwlock;
 
 };
-class ReadLockGuard{
+
+class ReadLockGuard {
 public:
     ReadLockGuard() = delete;
-    explicit  ReadLockGuard(RWLock &lock):__lock(lock){
+
+    explicit ReadLockGuard(RWLock &lock) : __lock(lock) {
         __lock.ReadLock();
     }
-    ~ReadLockGuard(){
+
+    ~ReadLockGuard() {
         __lock.Unlock();
     }
+
 private:
     RWLock __lock;
 };
-class WriteLockGuard{
+
+class WriteLockGuard {
 public:
-    WriteLockGuard()= delete;
-    explicit WriteLockGuard(RWLock &lock):__lock(lock){
+    WriteLockGuard() = delete;
+
+    explicit WriteLockGuard(RWLock &lock) : __lock(lock) {
         __lock.WriteLock();
     }
-    ~WriteLockGuard(){
+
+    ~WriteLockGuard() {
         __lock.Unlock();
     }
+
 private:
     RWLock __lock;
 };

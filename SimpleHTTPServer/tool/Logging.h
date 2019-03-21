@@ -15,30 +15,36 @@ class BufferPtr;
 namespace SimpleServer {
     namespace detail {
         void __AppendToLogFile(const char *msgline, size_t len);
-        class LoggerBuffer{
+
+        class LoggerBuffer {
         public:
-            const static size_t BUFFER_SIZE=4096;
-            explicit LoggerBuffer(){
-                this->__Buffer=new char[BUFFER_SIZE];
+            const static size_t BUFFER_SIZE = 4096;
+
+            explicit LoggerBuffer() {
+                this->__Buffer = new char[BUFFER_SIZE];
             }
-            ~LoggerBuffer(){
+
+            ~LoggerBuffer() {
                 delete[] this->__Buffer;
             }
-            bool append(const char *msg,size_t size){
-                if(this->__BufferSize+size>BUFFER_SIZE)
-                {
+
+            bool append(const char *msg, size_t size) {
+                if (this->__BufferSize + size > BUFFER_SIZE) {
                     return false;
                 }
-                memcpy(this->__Buffer+__BufferSize,msg,size);
-                __BufferSize+=size;
+                memcpy(this->__Buffer + __BufferSize, msg, size);
+                __BufferSize += size;
                 return true;
             }
-            char *getBuffer(){
+
+            char *getBuffer() {
                 return this->__Buffer;
             }
-            size_t getSize(){
+
+            size_t getSize() {
                 return this->__BufferSize;
             }
+
         private:
             /*
              *  This Buffer not have '\0' as
@@ -49,26 +55,33 @@ namespace SimpleServer {
             char *__Buffer;
             size_t __BufferSize{};
         };
+
         using BufferPtr=std::unique_ptr<LoggerBuffer>;
         using BufferVector=std::vector<BufferPtr>;
     }
-    namespace Logger{
+    namespace Logger {
         class LoggerThread {
         public:
-            const static int FLUSH_INTERVAL=5;
-            const static int EMPTY_BUFFER_SIZE=5;
-            const static int FULL_BUFFER_SIZE=5;
-            LoggerThread():isRunning(true){
+            const static int FLUSH_INTERVAL = 5;
+            const static int EMPTY_BUFFER_SIZE = 5;
+            const static int FULL_BUFFER_SIZE = 5;
+
+            LoggerThread() : isRunning(true) {
             }
+
             void Start();
-            bool getStatus(){
+
+            bool getStatus() {
                 return isRunning;
-            }void stop(){
-                this->isRunning=false;
             }
+
+            void stop() {
+                this->isRunning = false;
+            }
+
         private:
             bool isRunning;
-            std::vector<SimpleServer::detail::BufferPtr>buffer;
+            std::vector<SimpleServer::detail::BufferPtr> buffer;
         };
     }
 }

@@ -10,36 +10,39 @@
 
 namespace SimpleServer {
     namespace net {
-        enum class httpRequestParseState
-        {
+        enum class httpRequestParseState {
             ExpectRequestLine,
             ExpectHeaders,
             ExpectBody,
             Finished,
         };
+
         class httpContext {
         public:
-            httpContext():parseState(httpRequestParseState::ExpectRequestLine){}
-            void reset()
-            {
-                parseState=httpRequestParseState ::ExpectRequestLine;
+            httpContext() : parseState(httpRequestParseState::ExpectRequestLine) {}
+
+            void reset() {
+                parseState = httpRequestParseState::ExpectRequestLine;
                 httpRequest temp;
                 this->request.swap(temp);
             }
-            bool parseRequest(SimpleServer::tool::Buffer& buf);
-            const httpRequest& getRequest() const
-            {
+
+            bool parseRequest(SimpleServer::tool::Buffer &buf);
+
+            const httpRequest &getRequest() const {
                 return request;
             }
-            const httpRequestParseState& getState()
-            {
+
+            const httpRequestParseState &getState() {
                 return this->parseState;
             }
-            bool parseFinished()
-            {
-                return this->parseState==httpRequestParseState ::Finished;
+
+            bool parseFinished() {
+                return this->parseState == httpRequestParseState::Finished;
             }
+
             bool parseRequestLine(const char *begin, const char *end);
+
         private:
             httpRequest request;
             httpRequestParseState parseState;

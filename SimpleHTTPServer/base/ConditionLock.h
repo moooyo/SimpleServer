@@ -9,12 +9,14 @@
 #include <zconf.h>
 #include <pthread.h>
 #include <memory>
+
 namespace SimpleServer {
     class ConditionLock {
     public:
         explicit ConditionLock(Mutex &mutex) : __mutex(mutex) {
             pthread_cond_init(&__condition, nullptr);
         }
+
         void wait() {
             pthread_cond_wait(&__condition, &__mutex.getLock());
         }

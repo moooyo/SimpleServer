@@ -4,7 +4,8 @@
 #include "io.h"
 #include <unistd.h>
 #include <cerrno>
-namespace SimpleServer{
+
+namespace SimpleServer {
     namespace tool {
         ssize_t readn(int fd, void *vptr, size_t n) {
             size_t nleft = n;

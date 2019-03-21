@@ -11,7 +11,7 @@
 #include <cstdio>
 #include <cerrno>
 
-namespace SimpleServer{
+namespace SimpleServer {
     namespace tool {
         int Listen(int sockfd, int backlog) {
             if (listen(sockfd, backlog) != 0) {
@@ -36,7 +36,7 @@ namespace SimpleServer{
             servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
             servaddr.sin_family = AF_INET;
             servaddr.sin_port = htons(port);
-            Bind(socketfd, (SA * ) & servaddr, sizeof(servaddr));
+            Bind(socketfd, (SA *) &servaddr, sizeof(servaddr));
             Listen(socketfd, LISTENQ);
             return socketfd;
         }
@@ -48,7 +48,7 @@ namespace SimpleServer{
             servaddr.sin6_addr = in6addr_any;
             servaddr.sin6_family = AF_INET6;
             servaddr.sin6_port = htons(port);
-            Bind(socketfd, (SA * ) & servaddr, sizeof(servaddr));
+            Bind(socketfd, (SA *) &servaddr, sizeof(servaddr));
             Listen(socketfd, LISTENQ);
             return socketfd;
         }

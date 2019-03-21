@@ -8,31 +8,34 @@
 
 #include <zconf.h>
 #include <pthread.h>
+
 namespace SimpleServer {
     class Mutex {
     public:
-        Mutex() :__holder(0)
-        {
-            pthread_mutex_init(&this->__mutex,NULL);
+        Mutex() : __holder(0) {
+            pthread_mutex_init(&this->__mutex, NULL);
         }
-        ~Mutex(){
+
+        ~Mutex() {
             pthread_mutex_destroy(&this->__mutex);
         }
-        bool isLockedByThisThread()
-        {
+
+        bool isLockedByThisThread() {
             return true;
         }
-        pthread_mutex_t &getLock(){
+
+        pthread_mutex_t &getLock() {
             return this->__mutex;
         }
-        void lock()
-        {
+
+        void lock() {
             pthread_mutex_lock(&this->__mutex);
         }
-        void unlock()
-        {
+
+        void unlock() {
             pthread_mutex_unlock(&this->__mutex);
         }
+
     private:
         pthread_mutex_t __mutex;
         pid_t __holder;
