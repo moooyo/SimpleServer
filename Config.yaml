@@ -1,0 +1,21 @@
+Server:
+  -
+    domain: 'localhost'
+    listen: 8005
+    root: '/home/lengyu/html'
+    index: 'index.html'
+
+Cache:
+  status: true
+  cacheSize: 128
+  cacheNodeSize: 4096
+  expired: 30
+
+Log:
+  status: true
+  level: 'INFO'
+  logBufferSize: 4096
+  fullVectorSize: 5
+  emptyVectorSize: 5
+  logFilePath: '/home/SimpleServer.log'
+

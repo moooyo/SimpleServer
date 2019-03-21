@@ -9,6 +9,7 @@
 #include "CurrentThread.h"
 #include "WorkerThread.h"
 #include "syscall.h"
+#include "GlobalConfig.h"
 namespace SimpleServer{
     const int LISTEN_PORT=8005;
     const int MAX_WORKER_SIZE=7;
@@ -58,5 +59,6 @@ namespace SimpleServer{
 }
 int main()
 {
+    SimpleServer::Config::parseConfig();
     return SimpleServer::main();
 }
