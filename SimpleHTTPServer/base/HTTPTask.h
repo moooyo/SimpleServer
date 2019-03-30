@@ -10,12 +10,12 @@
 #include <zconf.h>
 #include "Task.h"
 #include "../tool/HTTP/httpContext.h"
+#include <GlobalConfig.h>
 
 namespace SimpleServer {
     class HTTPTask : virtual public Task {
     public:
         ~HTTPTask() {
-            //close(this->sockfd);
         };
 
         int getSockfd() {
@@ -24,17 +24,25 @@ namespace SimpleServer {
 
         HTTPTask() = default;
 
-        explicit HTTPTask(int fd, sockaddr_in &sockaddr) : sockfd(fd), sockaddr(sockaddr) {}
+        explicit HTTPTask(int fd, sockaddr_in &sockaddr, int port) : sockfd(fd),
+                                                                     sockaddr(sockaddr), port(port) {
+        }
+
+        void setConfig(SimpleServer::Config::detail::ServerConfig &config) {
+            this->serverConfig = config;
+        }
 
         void Run() override;
 
     private:
         int sockfd;
+        int port;
         sockaddr_in sockaddr;
+        Config::detail::ServerConfig serverConfig;
 
-        void todoDynamic(const net::httpContext &context, std::string &content_type);
+        void todoDynamic(const std::string &SERVER_ROOT, const net::httpContext &context, std::string &content_type);
 
-        void todoStatic(const net::httpContext &context, std::string &content_type);
+        void todoStatic(const std::string &SERVER_ROOT, const net::httpContext &context, std::string &content_type);
     };
 }
 

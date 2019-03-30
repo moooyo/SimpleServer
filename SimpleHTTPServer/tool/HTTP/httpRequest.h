@@ -113,6 +113,14 @@ namespace SimpleServer {
             const std::string &getQuery() const {
                 return this->query;
             }
+            const std::string& getHost() const {
+                const static std::string local="localhost";
+                if(this->headers.count("host")==0){
+                    return local;
+                }else{
+                    return this->headers.find("host")->second;
+                }
+            }
 
             void appendHeader(const char *start, const char *steep, const char *end) {
                 // key means that a key in header

@@ -11,14 +11,14 @@ class BufferPtr;
 #include <memory>
 #include <MutexLockGuard.h>
 #include "Buffer.h"
-
+using namespace SimpleServer;
 namespace SimpleServer {
     namespace detail {
         void __AppendToLogFile(const char *msgline, size_t len);
 
         class LoggerBuffer {
         public:
-            const static size_t BUFFER_SIZE = 4096;
+            static size_t BUFFER_SIZE ;
 
             explicit LoggerBuffer() {
                 this->__Buffer = new char[BUFFER_SIZE];
@@ -63,8 +63,8 @@ namespace SimpleServer {
         class LoggerThread {
         public:
             const static int FLUSH_INTERVAL = 5;
-            const static int EMPTY_BUFFER_SIZE = 5;
-            const static int FULL_BUFFER_SIZE = 5;
+            const static int EMPTY_BUFFER_SIZE ;
+            const static int FULL_BUFFER_SIZE ;
 
             LoggerThread() : isRunning(true) {
             }

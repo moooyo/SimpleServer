@@ -12,14 +12,14 @@
 #include <memory>
 #include "Mutex.h"
 #include "MutexLockGuard.h"
+#include "GlobalConfig.h"
+#include "Logger.h"
 
 namespace SimpleServer {
     namespace tool {
-        const static std::string LOCALHOST = "localhost";
-        const static int MAX_BUFFER_SIZE = 10240;
-        const static int MAX_CACHE_SIZE = 128;
-        struct CacheKeyHash;
+        static const std::string LOCALHOST="localhost";
 
+        struct CacheKeyHash;
         class CacheKey {
         public:
             CacheKey(const net::httpRequest &request) : uri(request.getUri()), query(request.getQuery()),
@@ -77,13 +77,16 @@ namespace SimpleServer {
         class CacheManager {
         public:
             bool insert(const char *buf, const size_t size, const CacheKey &key) {
-                if (size > MAX_BUFFER_SIZE) {
+#ifdef __DEBUG__
+                LOG_INFO<<"MAX_BUFFER_SIZE:"<<GlobalConfig.Cache().CacheNodeSize();
+#endif
+                if (size > GlobalConfig.Cache().CacheNodeSize()) {
                     return false;
                 }
                 std::shared_ptr<CacheNode> node = std::make_shared<CacheNode>(buf, size);
                 {
                     MutexLockGuard listlock(this->__ListMutex);
-                    if (CacheList.size() > MAX_CACHE_SIZE) {
+                    if (CacheList.size() > GlobalConfig.Cache().CacheSize()) {
                         auto iterator = CacheList.rbegin();
                         CacheList.erase(iterator.base());
                     }

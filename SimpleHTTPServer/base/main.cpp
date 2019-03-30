@@ -2,6 +2,7 @@
 // Created by lengyu on 2019/3/2.
 //
 #include <Cache.h>
+#include <csignal>
 #include "nethelp.h"
 #include "Logger.h"
 #include "Logging.h"
@@ -12,23 +13,23 @@
 #include "GlobalConfig.h"
 
 namespace SimpleServer {
-    const int LISTEN_PORT = 8005;
     const int MAX_WORKER_SIZE = 7;
 
     void *WorkerFunction(void *args) {
         __threadName = __ThreadNameStorage[0];
         __threadStringSize = strlen(__threadName);
-
+        __FormatString();
         LOG_INFO << "Start Worker Thread";
-        auto *workerThread = (WorkerThread *) args;
+        auto workerThread = static_cast<WorkerThread *>(args);
         workerThread->start();
+        LOG_INFO << "End Worker Thread";
         return nullptr;
     }
 
     void *LoggerFunction(void *args) {
         __threadName = __ThreadNameStorage[2];
         __threadStringSize = strlen(__threadName);
-
+        __FormatString();
         LOG_INFO << "Start Log Thread";
         Logger::LoggerThread thread;
         thread.Start();
@@ -36,24 +37,22 @@ namespace SimpleServer {
     }
 
     int main() {
-        __threadName = __ThreadNameStorage[1];
-        __threadStringSize = strlen(__threadName);
-
         LOG_INFO << "Start Server";
+#ifdef __DEBUG__
+        LOG_INFO << "Debug";
+        signal(SIGSEGV,Logger::signal_handler);
+#endif
         EventLoop<HTTPTask> loop;
         Mutex __lock;
         ConditionLock conditionLock(__lock);
-        int listenfd = tool::OpenIpv4Listen(LISTEN_PORT);
-        ListenServer server(listenfd, 256, &conditionLock, &loop);
-        WorkerThread workers[MAX_WORKER_SIZE];
+        ListenServer server(256, &conditionLock, &loop);
         pthread_t tid;
         pthread_create(&tid, nullptr, LoggerFunction, nullptr);
         for (size_t i = 0; i < MAX_WORKER_SIZE; ++i) {
-            WorkerThread work(i, &conditionLock, &loop);
-            workers[i] = std::move(work);
-            pthread_create(&tid, nullptr, WorkerFunction, (void *) (&workers[i]));
+            WorkerThread *work = new WorkerThread(i,&conditionLock,&loop);
+            pthread_create(&tid, nullptr, WorkerFunction, (void *) (work));
         }
-        server.StartListenning();
+        server.StartListening();
         return 0;
     }
 }

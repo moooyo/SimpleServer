@@ -4,7 +4,6 @@
 
 #include "ListenServer.h"
 #include "errHelp.h"
-#include "nethelp.h"
 #include "HTTP/httpRequest.h"
 #include "epollHelp.h"
 #include "Logging.h"
@@ -13,25 +12,43 @@
 #include <zconf.h>
 #include <netinet/in.h>
 #include <cstring>
+#include <unordered_set>
+#include <unordered_map>
+#include <nethelp.h>
+#include <Logger.h>
 
 using namespace SimpleServer;
-
-ListenServer::ListenServer(int sockfd, int maxsize, ConditionLock *lock, EventLoop<HTTPTask> *loop) :
-        listenfd(sockfd), MAX_EVENTS(maxsize), loop(loop) {
+std::unordered_map<ServerKey, SimpleServer::Config::detail::ServerConfig, ServerKeyHash> ListenServer::serverMap;
+ListenServer::ListenServer(int maxsize, ConditionLock *lock, EventLoop<HTTPTask> *loop) :
+        MAX_EVENTS(maxsize), loop(loop) {
     this->epollfd = epoll_create(this->MAX_EVENTS);
     this->lock = lock;
     if (this->epollfd < 0) {
         tool::panic("err init epoll!");
     }
-    struct timeval tv;
-    tv.tv_usec = 0;
-    tv.tv_sec = 0;//3 second for timeout
-    setsockopt(this->listenfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+    std::unordered_set<int> listenPort;
+    for (auto i: SimpleServer::GlobalConfig.Server()) {
+        listenPort.insert(i.ListenPort());
+        ServerKey key(i.Domain(), i.ListenPort());
+        ListenServer::ServerConfig()[key]=i;
+    }
+    for (auto i: listenPort) {
+        int fd = SimpleServer::tool::OpenIpv4Listen(i);
+        this->listenfd.push_back(fd);
+        this->portMap[fd]=i;
+    }
 }
 
-void ListenServer::StartListenning() {
+void ListenServer::StartListening() {
+    __threadName = __ThreadNameStorage[1];
+    __threadStringSize = strlen(__threadName);
+    __FormatString();
+    LOG_INFO<<"Start listenning";
     struct ::epoll_event event_list[this->MAX_EVENTS];
-    tool::Epoll_add(this->epollfd, this->listenfd, EPOLLIN | EPOLLET);
+    for (auto i: this->listenfd) {
+        LOG_INFO<<"Epoll_add "<<i;
+        tool::Epoll_add(this->epollfd, i, EPOLLIN | EPOLLET);
+    }
     int timeout = -1;
     for (;;) {
         int ret = tool::Epoll_wait(this->epollfd, event_list, MAX_EVENTS, timeout);
@@ -42,27 +59,23 @@ void ListenServer::StartListenning() {
             if (event_list[i].events & EPOLLERR || event_list[i].events & EPOLLHUP ||
                 !(event_list[i].events & EPOLLIN)) {
                 close(event_list[i].data.fd);
-                std::printf("error!\n");
+                LOG_ERROR << "Epoll wait error";
                 continue;
-            } else if (event_list[i].data.fd == this->listenfd) {
-                std::printf("accept!\n");
-                this->Accept();
             } else {
-                std::printf("not match\n");
+                LOG_INFO<<"Accept "<<event_list[i].data.fd;
+                this->Accept(event_list[i].data.fd);
             }
         }
     }
-
 }
 
-void ListenServer::Accept() {
+void ListenServer::Accept(int listenfd) {
     struct sockaddr_in sin;
     socklen_t len = sizeof(sin);
     memset(&sin, 0, len);
     int connfd;
-    while ((connfd = tool::Accept(this->listenfd, (tool::SA *) &sin, &len)) && connfd > 0) {
-        HTTPTask task(connfd, sin);
-        this->loop->push(task);
-        this->lock->notify();
-    }
+    connfd = tool::Accept(listenfd, (tool::SA *) &sin, &len);
+    HTTPTask task(connfd, sin, this->portMap[listenfd]);
+    this->loop->push(task);
+    this->lock->notify();
 }

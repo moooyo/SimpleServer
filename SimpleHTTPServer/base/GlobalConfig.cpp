@@ -4,21 +4,18 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 #include "GlobalConfig.h"
-#include "Logger.h"
-#include "LogStream.h"
 
-SimpleServer::Config::detail::__GlobalConfig GlobalConfig;
 using namespace SimpleServer;
 using namespace Logger;
 using namespace Config;
-
+SimpleServer::Config::detail::__GlobalConfig SimpleServer::GlobalConfig;
 template<typename T>
 bool __ParseYAMLField(YAML::Node config, std::string field, T &result) {
     if (config[field]) {
         result = config[field].as<T>();
         return true;
     } else {
-        LOG_ERROR << "Parse " << field << " failed";
+        std::cout << "Parse " << field << " failed"<<std::endl;
         return false;
     }
 }
@@ -26,7 +23,7 @@ bool __ParseYAMLField(YAML::Node config, std::string field, T &result) {
 void SimpleServer::Config::parseConfig() {
     YAML::Node config = YAML::LoadFile("/home/lengyu/CLionProjects/SimpleHTTPServer/Config.yaml");
     if (config["Server"] && config["Server"].Type() == YAML::NodeType::Sequence) {
-        LOG_INFO << "Parse server config start";
+        std::cout << "Parse server config start"<<std::endl;
         std::string strTemp;
         size_t sizeTemp;
         for (auto i:config["Server"]) {
@@ -44,13 +41,12 @@ void SimpleServer::Config::parseConfig() {
                 serverConfig.listenPort = sizeTemp;
             }
             GlobalConfig.__server.push_back(serverConfig);
-            LOG_INFO << "Server:" << serverConfig;
         }
     } else {
-        LOG_ERROR << "Parse server config error";
+        std::cout << "Parse server config error"<<std::endl;
     }
     if (config["Cache"]) {
-        LOG_INFO << "Parse cache config start";
+        std::cout << "Parse cache config start"<<std::endl;
         size_t sizeTemp;
         bool boolTemp;
         if (__ParseYAMLField<bool>(config["Cache"], "status", boolTemp)) {
@@ -65,12 +61,11 @@ void SimpleServer::Config::parseConfig() {
         if (__ParseYAMLField<size_t>(config["Cache"], "expired", sizeTemp)) {
             GlobalConfig.__cache.expired = sizeTemp;
         }
-        LOG_INFO << "Cache:" << GlobalConfig.__cache;
     } else {
-        LOG_ERROR << "Parse cache config error";
+        std::cout << "Parse cache config error"<<std::endl;
     }
     if (config["Log"]) {
-        LOG_INFO << "Parse log config start";
+        std::cout << "Parse log config start"<<std::endl;
         size_t sizeTemp;
         std::string strTemp;
         bool boolTemp;
@@ -93,9 +88,8 @@ void SimpleServer::Config::parseConfig() {
         if (__ParseYAMLField<std::string>(config["Log"], "logFilePath", strTemp)) {
             GlobalConfig.__log.logFilePath = strTemp;
         }
-        LOG_INFO << "Log:" << GlobalConfig.__log;
     } else {
-        LOG_ERROR << "Parse log config error";
+        std::cout << "Parse log config error"<<std::endl;
     }
 }
 

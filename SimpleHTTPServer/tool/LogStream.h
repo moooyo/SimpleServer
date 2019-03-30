@@ -38,6 +38,12 @@ namespace SimpleServer {
                 this->append(buffer);
                 return *this;
             }
+            LogStream &operator<<(const int &msg){
+                char buffer[32];
+                sprintf(buffer,"%d",msg);
+                this->append(buffer);
+                return *this;
+            }
 
             LogStream &operator<<(const bool &msg) {
                 if (msg) {
@@ -56,10 +62,17 @@ namespace SimpleServer {
             ~LogStream() {
                 //every log must end of '\n'
                 this->append("\n");
-                SimpleServer::detail::__AppendToLogFile(__buffer, __bufferSize);
+#ifdef __DEBUG__
+                __buffer[this->__bufferSize]='\0';
+                std::cout<<__buffer<<std::endl;
+#endif
+                if(status) {
+                    SimpleServer::detail::__AppendToLogFile(__buffer, __bufferSize);
+                }
             }
 
         private:
+            static bool status;
             const static size_t BUFFER_SIZE = 4096;
             /*
              *  Attention!

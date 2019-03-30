@@ -20,6 +20,12 @@ namespace SimpleServer {
         int OpenIpv4Listen(unsigned int port);
 
         int Accept(int sockfd, struct sockaddr *cliaddr, socklen_t *addrlen);
+
+        /*
+         *  This function will return
+         *  A connected socket fd
+         */
+        int OpenUnixSocket(const char *sockPath);
     }
 }
 

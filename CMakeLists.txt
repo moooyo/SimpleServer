@@ -3,6 +3,12 @@ project(SimpleHTTPServer)
 
 set(CMAKE_CXX_STANDARD 14)
 
+add_compile_options(-D __DEBUG__)
+add_compile_options(-Og)
+add_compile_options(-rdynamic)
+add_compile_options(-g)
+
+
 include_directories(SimpleHTTPServer/base)
 include_directories(SimpleHTTPServer/tool)
 link_libraries(pthread)
@@ -20,4 +26,4 @@ add_executable(SimpleHTTPServer
         SimpleHTTPServer/tool/io.h
         SimpleHTTPServer/tool/nethelp.cpp
         SimpleHTTPServer/tool/nethelp.h
-        readme.md SimpleHTTPServer/tool/HTTP/httpContext.cpp SimpleHTTPServer/tool/HTTP/httpContext.h SimpleHTTPServer/tool/Buffer.cpp SimpleHTTPServer/tool/Buffer.h SimpleHTTPServer/tool/HTTP/httpResponse.h SimpleHTTPServer/base/Mutex.h SimpleHTTPServer/base/MutexLockGuard.h SimpleHTTPServer/base/WorkerThread.h SimpleHTTPServer/base/EventLoop.h SimpleHTTPServer/base/Task.h SimpleHTTPServer/base/HTTPTask.h SimpleHTTPServer/base/ConditionLock.h SimpleHTTPServer/base/HTTPTask.cpp SimpleHTTPServer/tool/Cache.h SimpleHTTPServer/base/RWLock.h SimpleHTTPServer/tool/Cache.cpp SimpleHTTPServer/tool/Logging.cpp SimpleHTTPServer/tool/Logging.h SimpleHTTPServer/tool/Logger.h SimpleHTTPServer/tool/LogStream.h SimpleHTTPServer/base/CurrentThread.h SimpleHTTPServer/base/GlobalConfig.cpp SimpleHTTPServer/base/GlobalConfig.h SimpleHTTPServer/base/CurrentThread.cpp)
+        readme.md SimpleHTTPServer/tool/HTTP/httpContext.cpp SimpleHTTPServer/tool/HTTP/httpContext.h SimpleHTTPServer/tool/Buffer.cpp SimpleHTTPServer/tool/Buffer.h SimpleHTTPServer/tool/HTTP/httpResponse.h SimpleHTTPServer/base/Mutex.h SimpleHTTPServer/base/MutexLockGuard.h SimpleHTTPServer/base/WorkerThread.h SimpleHTTPServer/base/EventLoop.h SimpleHTTPServer/base/Task.h SimpleHTTPServer/base/HTTPTask.h SimpleHTTPServer/base/ConditionLock.h SimpleHTTPServer/base/HTTPTask.cpp SimpleHTTPServer/tool/Cache.h SimpleHTTPServer/base/RWLock.h SimpleHTTPServer/tool/Cache.cpp SimpleHTTPServer/tool/Logging.cpp SimpleHTTPServer/tool/Logging.h SimpleHTTPServer/tool/Logger.h SimpleHTTPServer/tool/LogStream.h SimpleHTTPServer/base/CurrentThread.h SimpleHTTPServer/base/GlobalConfig.cpp SimpleHTTPServer/base/GlobalConfig.h SimpleHTTPServer/base/CurrentThread.cpp SimpleHTTPServer/tool/Logger.cpp SimpleHTTPServer/tool/LogStream.cpp)

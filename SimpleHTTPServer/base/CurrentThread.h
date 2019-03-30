@@ -21,6 +21,7 @@ namespace SimpleServer {
     };
 
     void __Cached();
+    void __FormatString();
 }
 
 #endif //SIMPLEHTTPSERVER_CURRENTTHREAD_H

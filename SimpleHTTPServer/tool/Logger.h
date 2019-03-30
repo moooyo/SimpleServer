@@ -15,6 +15,13 @@
 
 namespace SimpleServer {
     namespace Logger {
+
+#ifdef __DEBUG__
+        void dump();
+        void signal_handler(int signo);
+#endif
+
+
         enum class LOG_LEVEL {
             INFO = 0,
             WARING = 1,

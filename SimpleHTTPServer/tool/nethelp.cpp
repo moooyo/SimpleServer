@@ -5,6 +5,7 @@
 #include <zconf.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <cstring>
 #include "nethelp.h"
 #include "errHelp.h"
@@ -28,7 +29,15 @@ namespace SimpleServer {
             }
             return 0;
         }
-
+        int SetOptionReused(int sockfd){
+            int on=true;
+            socklen_t len=sizeof(on);
+            if(setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR|SO_REUSEPORT,(const void*)&on,len)<0){
+                panic("Set socket option reused error!");
+                return -1;
+            }
+            return 0;
+        }
         int openIpv4Listen(unsigned int port) {
             int socketfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             struct sockaddr_in servaddr;
@@ -36,6 +45,7 @@ namespace SimpleServer {
             servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
             servaddr.sin_family = AF_INET;
             servaddr.sin_port = htons(port);
+            SetOptionReused(socketfd);
             Bind(socketfd, (SA *) &servaddr, sizeof(servaddr));
             Listen(socketfd, LISTENQ);
             return socketfd;
@@ -48,6 +58,7 @@ namespace SimpleServer {
             servaddr.sin6_addr = in6addr_any;
             servaddr.sin6_family = AF_INET6;
             servaddr.sin6_port = htons(port);
+            SetOptionReused(socketfd);
             Bind(socketfd, (SA *) &servaddr, sizeof(servaddr));
             Listen(socketfd, LISTENQ);
             return socketfd;
@@ -75,6 +86,16 @@ namespace SimpleServer {
                 panic("Accept error!");
             }
             return ret;
+        }
+
+        int OpenUnixSocket(const char *sockPath) {
+            int sock=socket(AF_LOCAL,SOCK_STREAM,0);
+            struct sockaddr_un servaddr;
+            memset(&servaddr,0,sizeof(servaddr));
+            servaddr.sun_family=AF_LOCAL;
+            strcpy(servaddr.sun_path,sockPath);
+            connect(sock,(SA *)&servaddr,sizeof(servaddr));
+            return sock;
         }
     }
 }

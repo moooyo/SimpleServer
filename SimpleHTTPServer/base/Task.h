@@ -13,7 +13,6 @@ namespace SimpleServer {
         ~Task() {
 
         };
-
         virtual void Run() = 0;
     };
 }

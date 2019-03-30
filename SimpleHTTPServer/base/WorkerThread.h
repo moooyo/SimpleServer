@@ -19,9 +19,8 @@ namespace SimpleServer {
     public:
         WorkerThread() = default;
 
-        explicit WorkerThread(size_t i, ConditionLock *lock, EventLoop <HTTPTask> *loop, std::string name = "worker")
-                : id(i), name(
-                std::move(name)), lock(lock), loop(loop) {
+        explicit WorkerThread(size_t i, ConditionLock *lock, EventLoop <HTTPTask> *loop)
+                : id(i), lock(lock), loop(loop) {
         };
 
         void start() {
@@ -35,14 +34,18 @@ namespace SimpleServer {
                 task.Run();
             }
         }
+        void resetNull(){
+            lock= nullptr;
+            loop= nullptr;
+        }
 
         void stop() {
             isRunning = false;
         }
+        virtual ~WorkerThread() = default;
 
     private:
         size_t id;
-        std::string name;
         ConditionLock *lock;
         bool isRunning;
         EventLoop <HTTPTask> *loop;

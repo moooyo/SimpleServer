@@ -102,10 +102,8 @@ namespace SimpleServer {
                 LogConfig __log;
                 std::vector<ServerConfig> __server;
             };
-
-            extern __GlobalConfig GlobalConfig;
         }
     }
-
+    extern Config::detail::__GlobalConfig GlobalConfig;
 }
 #endif //SIMPLEHTTPSERVER_CONFIG_H

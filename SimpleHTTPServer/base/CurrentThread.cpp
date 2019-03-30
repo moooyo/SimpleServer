@@ -22,4 +22,8 @@ namespace SimpleServer {
             __threadStringSize = strlen(__threadString);
         }
     }
+
+    void __FormatString() {
+        sprintf(__threadString,"%li %s",__cachedTid,__threadName);
+    }
 }
