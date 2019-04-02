@@ -52,6 +52,7 @@ void ListenServer::StartListening() {
     int timeout = -1;
     for (;;) {
         int ret = tool::Epoll_wait(this->epollfd, event_list, MAX_EVENTS, timeout);
+        LOG_INFO<<"epoll ret:"<<ret;
         if (ret == 0) {
             continue;
         }
@@ -70,7 +71,7 @@ void ListenServer::StartListening() {
 }
 
 void __closeSocket(int* ptr){
-    LOG_WARING<<"shutdown socketfd "<<*ptr;
+    LOG_WARING<<"close socketfd "<<*ptr;
     close(*ptr);
 }
 

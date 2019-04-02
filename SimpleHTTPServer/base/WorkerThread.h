@@ -26,7 +26,8 @@ namespace SimpleServer {
         void start() {
             isRunning = true;
             while (isRunning) {
-                lock->wait();
+                LOG_INFO<<"Wait for work";
+                lock->waitForSeconds(1);
                 HTTPTask task;
                 if (!loop->TryPop(task)) {
                     continue;
