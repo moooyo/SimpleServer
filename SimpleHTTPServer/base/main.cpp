@@ -37,6 +37,7 @@ namespace SimpleServer {
     }
 
     int main() {
+        signal(SIGPIPE,SIG_IGN);
         LOG_INFO << "Start Server";
 #ifdef __DEBUG__
         LOG_INFO << "Debug";

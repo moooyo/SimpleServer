@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by lengyu on 2019/3/8.
 //
@@ -8,6 +10,7 @@
 #include <nethelp.h>
 #include <netinet/in.h>
 #include <zconf.h>
+#include <memory>
 #include "Task.h"
 #include "../tool/HTTP/httpContext.h"
 #include <GlobalConfig.h>
@@ -16,15 +19,22 @@ namespace SimpleServer {
     class HTTPTask : virtual public Task {
     public:
         ~HTTPTask() {
+            /*
+             *  We can't close sockfd
+             *  in here. Because it will
+             *  destructed in ListenServer
+             *  When push.
+             */
+          //  close(this->sockfd);
         };
 
         int getSockfd() {
-            return this->sockfd;
+            return *(this->sockfd);
         }
 
         HTTPTask() = default;
 
-        explicit HTTPTask(int fd, sockaddr_in &sockaddr, int port) : sockfd(fd),
+        explicit HTTPTask(std::shared_ptr<int> fd, sockaddr_in &sockaddr, int port) : sockfd(std::move(fd)),
                                                                      sockaddr(sockaddr), port(port) {
         }
 
@@ -35,8 +45,8 @@ namespace SimpleServer {
         void Run() override;
 
     private:
-        int sockfd;
         int port;
+        std::shared_ptr<int>sockfd;
         sockaddr_in sockaddr;
         Config::detail::ServerConfig serverConfig;
 

@@ -58,6 +58,12 @@ namespace SimpleServer {
                 this->append(str.c_str());
                 return *this;
             }
+            LogStream &operator<<(const long &size){
+                char buffer[64];
+                sprintf(buffer,"%ld",size);
+                this->append(buffer);
+                return *this;
+            }
 
             ~LogStream() {
                 //every log must end of '\n'

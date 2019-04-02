@@ -69,13 +69,20 @@ void ListenServer::StartListening() {
     }
 }
 
+void __closeSocket(int* ptr){
+    LOG_WARING<<"shutdown socketfd "<<*ptr;
+    close(*ptr);
+}
+
+
 void ListenServer::Accept(int listenfd) {
     struct sockaddr_in sin;
     socklen_t len = sizeof(sin);
     memset(&sin, 0, len);
     int connfd;
     connfd = tool::Accept(listenfd, (tool::SA *) &sin, &len);
-    HTTPTask task(connfd, sin, this->portMap[listenfd]);
+    std::shared_ptr<int> sharedPtr(new int(connfd),__closeSocket);
+    HTTPTask task(sharedPtr, sin, this->portMap[listenfd]);
     this->loop->push(task);
     this->lock->notify();
 }

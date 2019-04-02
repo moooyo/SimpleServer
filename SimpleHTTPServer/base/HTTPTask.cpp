@@ -19,6 +19,9 @@
 
 using namespace SimpleServer;
 
+const char *const NOT_FOUND_HTML="<html>404 NOT FOUND</html>";
+
+
 std::tuple<int, std::string> ParseURI(const std::string &uri);
 void HTTPTask::Run() {
     const static int BUFFER_SIZE = 4096;
@@ -27,15 +30,15 @@ void HTTPTask::Run() {
     char buffer[BUFFER_SIZE];
     ssize_t read_size = 0;
     net::httpContext context;
-    while ((read_size = read(this->sockfd, buffer, BUFFER_SIZE)) && read_size > 0) {
+    while ((read_size = read(this->getSockfd(), buffer, BUFFER_SIZE)) && read_size > 0) {
         readBuffer.write(buffer, read_size);
         context.parseRequest(readBuffer);
         if (context.parseFinished()) {
             break;
         }
     }
-    ServerKey key(context.getRequest().getHost(),this->port);
-    LOG_INFO<<"Accept: host="<<context.getRequest().getHost()<<" port="<<this->port;
+    ServerKey key(context.getRequest().getHost(),(this->port));
+    LOG_INFO<<"Accept: host="<<context.getRequest().getHost()<<" port="<<(this->port);
     auto config=ListenServer::ServerConfig()[key];
     auto ret = ParseURI(context.getRequest().getUri());
     std::string SERVER_ROOT = config.Root();
@@ -54,9 +57,10 @@ void HTTPTask::Run() {
             tool::panic("match postfix error!");
             break;
     }
-    close(this->sockfd);
 }
-
+bool checkFileRead(const char * const filename){
+    return access(filename, 4) != -1;
+}
 void HTTPTask::todoDynamic(const std::string &SERVER_ROOT,const net::httpContext &context, std::string &content_type) {
 
 }
@@ -72,26 +76,36 @@ void HTTPTask::todoStatic(const std::string &SERVER_ROOT,const net::httpContext 
     if (CacheNode == nullptr) {
         std::string filename = SERVER_ROOT + context.getRequest().getUri();
         LOG_INFO<<"filename:"<<filename;
-        int filefd = open((filename).c_str(), O_RDONLY);
-        char buffer[BUFFER_SIZE];
-        ssize_t read_size = 0;
-        std::string str = std::string("");
-        while ((read_size = read(filefd, buffer, BUFFER_SIZE - 1)) && read_size > 0) {
-            buffer[read_size] = '\0';
-            str.append(std::string(buffer));
+        if(!checkFileRead(filename.c_str())){
+            response.setStatusCode(SimpleServer::net::httpResponse::httpStatusCode::NOT_FOUND);
+            response.setStatusMessage("NOT FOUND");
+            response.setBody(NOT_FOUND_HTML);
+        }else {
+            int filefd = open((filename).c_str(), O_RDONLY);
+            char buffer[BUFFER_SIZE];
+            ssize_t read_size = 0;
+            std::string str = std::string("");
+            LOG_INFO<<"before read file"<<filename;
+            while ((read_size = read(filefd, buffer, BUFFER_SIZE - 1)) && read_size > 0) {
+                LOG_INFO<<"read file"<<filename<<" size:"<<read_size;
+                buffer[read_size] = '\0';
+                str.append(std::string(buffer));
+            }
+            LOG_INFO<<"read file"<<filename<<" end";
+            close(filefd);
+            response.setBody(str);
+            const std::string body = response.getResponseBody();
+            bool ret = Cache->insert(body.c_str(), body.length(), key);
+            LOG_INFO << "URI: " << context.getRequest().getUri() << " cache miss insert:" << ret << " size="
+                     << body.length();
         }
-        //to RAII it
-        close(filefd);
-        response.setBody(str);
-        const std::string body = response.getResponseBody();
-        bool ret = Cache->insert(body.c_str(), body.length(), key);
-        LOG_INFO<<"URI: "<<context.getRequest().getUri()<<" cache miss insert:"<<ret<<" size="<<body.length();
     } else {
         LOG_INFO<<"URI: "<<context.getRequest().getUri()<<" cache hit";
         std::string body(CacheNode->getBuffer());
         response.setBody(body);
     }
-    response.sendResponse(this->sockfd);
+
+    response.sendResponse(*(this->sockfd));
 }
 
 /*
