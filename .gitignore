@@ -34,3 +34,8 @@
 # clion directory
 /cmake-build-debug
 /.idea
+# cmake directory
+/CMakeFiles
+cmake_install.cmake
+Makefile
+CMakeCache.txt
