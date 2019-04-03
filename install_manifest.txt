@@ -1,2 +1,0 @@
-/usr/local/bin/httpServer
-/usr/local/etc/httpServer.d/Config.yaml
