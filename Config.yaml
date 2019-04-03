@@ -19,3 +19,5 @@ Log:
   emptyVectorSize: 5
   logFilePath: '/home/SimpleServer.log'
 
+Other:
+  workerThread: 7

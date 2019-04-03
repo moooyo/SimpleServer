@@ -13,7 +13,6 @@
 #include "GlobalConfig.h"
 
 namespace SimpleServer {
-    const int MAX_WORKER_SIZE = 7;
 
     void *WorkerFunction(void *args) {
         __threadName = __ThreadNameStorage[0];
@@ -44,6 +43,8 @@ namespace SimpleServer {
         signal(SIGSEGV,Logger::signal_handler);
 #endif
         EventLoop<HTTPTask> loop;
+        const int MAX_WORKER_SIZE=GlobalConfig.Other().getWorkerThread()<=1?1:GlobalConfig.Other().getWorkerThread();
+        LOG_INFO<<" worker thread number:"<<MAX_WORKER_SIZE;
         Mutex __lock;
         ConditionLock conditionLock(__lock);
         ListenServer server(256, &conditionLock, &loop);

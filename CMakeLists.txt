@@ -11,6 +11,7 @@ if(${DEBUG})
 	add_compile_options(-rdynamic)
 	add_compile_options(-g)
 endif()
+add_compile_options(-D__ETC_CONFIG_PATH__="${CMAKE_INSTALL_PREFIX}/etc/httpServer.d/Config.yaml")
 
 include_directories(SimpleHTTPServer/base)
 include_directories(SimpleHTTPServer/tool)
@@ -24,4 +25,10 @@ aux_source_directory(SimpleHTTPServer/tool/HTTP/ HTTP_SRCS)
 link_libraries(pthread)
 link_libraries(libyaml-cpp.a)
 
-add_executable(main ${BASE_SRCS} ${TOOL_SRCS} ${HTTP_SRCS})
+add_executable(httpServer ${BASE_SRCS} ${TOOL_SRCS} ${HTTP_SRCS})
+
+message("install prefix is ${CMAKE_INSTALL_PREFIX}")
+message("etc config file path = ${CMAKE_INSTALL_PREFIX}/etc/httpServer.d/Config.yaml")
+install(TARGETS httpServer DESTINATION bin)
+install(FILES Config.yaml DESTINATION etc/httpServer.d/)
+

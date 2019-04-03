@@ -21,7 +21,8 @@ bool __ParseYAMLField(YAML::Node config, std::string field, T &result) {
 }
 
 void SimpleServer::Config::parseConfig() {
-    YAML::Node config = YAML::LoadFile("/home/lengyu/CLionProjects/SimpleHTTPServer/Config.yaml");
+    YAML::Node config = YAML::LoadFile(__ETC_CONFIG_PATH__);
+    std::cout<<"Config path="<<__ETC_CONFIG_PATH__<<std::endl;
     if (config["Server"] && config["Server"].Type() == YAML::NodeType::Sequence) {
         std::cout << "Parse server config start"<<std::endl;
         std::string strTemp;
@@ -89,7 +90,16 @@ void SimpleServer::Config::parseConfig() {
             GlobalConfig.__log.logFilePath = strTemp;
         }
     } else {
-        std::cout << "Parse log config error"<<std::endl;
+        std::cout << "Parse log config error" << std::endl;
+    }
+    if(config["Other"]){
+        std::cout<<"Parse other config start"<<std::endl;
+        size_t sizeTemp;
+        if(__ParseYAMLField<size_t >(config["Other"],"workerThread",sizeTemp)){
+            GlobalConfig.__other.workerThread=sizeTemp;
+        }
+    } else{
+        std::cout<<"Parse other config error"<<std::endl;
     }
 }
 

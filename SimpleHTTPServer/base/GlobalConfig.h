@@ -13,7 +13,6 @@ namespace SimpleServer {
 
         namespace detail {
             class __Config {
-            public:
             };
 
             class CacheConfig : public __Config {
@@ -83,7 +82,15 @@ namespace SimpleServer {
 
                 std::string &Index() { return this->index; }
             };
-
+            class OtherConfig: public __Config{
+            private:
+                size_t workerThread;
+            public:
+                friend void SimpleServer::Config::parseConfig();
+                const size_t getWorkerThread(){
+                    return this->workerThread;
+                }
+            };
             class __GlobalConfig {
             public:
                 friend SimpleServer::detail::LogStream &
@@ -96,11 +103,12 @@ namespace SimpleServer {
                 LogConfig &Log() { return this->__log; }
 
                 std::vector<ServerConfig> &Server() { return this->__server; }
-
+                OtherConfig &Other(){ return this->__other;}
             private:
                 CacheConfig __cache;
                 LogConfig __log;
                 std::vector<ServerConfig> __server;
+                OtherConfig __other;
             };
         }
     }
