@@ -3,13 +3,13 @@
 
 ## About
 
-This is an open source http server. It used multithread to improve performance. It's a toy,so you shouldn't use it in production environment. It just due to learn how to use cpp to programme the network application.
+This is an open source http server. It use multithread to improve performance. It's a toy,so you shouldn't use it in production environment. It was just used to learn how to use cpp to programme the network application.
 
 ## How to build
 
 Firstly, We should install gcc and cmake.
 
-**Note**: gcc version should be highly.
+**Note**: gcc version should be more than 8.2.
 
 And then,install <a href="https://github.com/jbeder/yaml-cpp">yarm-cpp</a>. We used it to parse yaml format.
 
@@ -22,7 +22,7 @@ make && make install
 
 If the system tell you that you have no permissions to copy file, you should use sudo to do it.
 
-**Note**: you can use CMAKE_INSTALL_PREFIX to choice where to installed.
+**Note**: you can use CMAKE_INSTALL_PREFIX to choose where to installed.
 
 ## Feature
 
